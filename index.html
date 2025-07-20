@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>eBook Collection</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>📚 eBook Collection</h1>
+      <p>Open-access library for programmers & learners</p>
+      <input type="text" id="searchBar" placeholder="Search eBooks..." />
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+
+    
+      <h2>Available eBooks</h2>
+      <div class="book-grid" id="bookList">
+
+        <!-- Book Cards -->
+        <div class="book-card" data-title="Git Pocket Guide">
+          <img src="images/git-pocket-guide.jpg" alt="Git Pocket Guide" />
+          <h3>Git Pocket Guide</h3>
+          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/raw/main/Git%20Pocket%20Guide%20-%20Silverman%2C%20Richard%20E._5525.pdf')">Download</button>
+        </div>
+
+        <div class="book-card" data-title="Pro Git">
+          <img src="images/pro-git.jpg" alt="PRO Git" />
+          <h3>PRO Git</h3>
+          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/raw/main/progit-en.1084.pdf')">Download</button>
+        </div>
+
+        <div class="book-card" data-title="Pro Git Second Edition">
+          <img src="images/pro-git-2.jpg" alt="PRO Git Second Edition" />
+          <h3>PRO Git (2nd Edition)</h3>
+          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/raw/main/1001839.pdf')">Download</button>
+        </div>
+
+        <div class="book-card" data-title="Cybersecurity for Beginners">
+          <img src="images/cybersecurity.jpg" alt="Cybersecurity for Beginners" />
+          <h3>Cybersecurity for Beginners</h3>
+          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/raw/main/Meeuwisse-Rauf.-CybersecurityforBeginners.pdf')">Download</button>
+        </div>
+
+        <div class="book-card" data-title="The Psychology of Money">
+          <img src="images/psychology-of-money.jpg" alt="Psychology of Money" />
+          <h3>The Psychology of Money</h3>
+          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/raw/main/the-psychology-of-money-by-morgan-housel.pdf')">Download</button>
+        </div>
+
+        <div class="book-card" data-title="Think Python">
+          <img src="images/think-python.jpg" alt="Think Python" />
+          <h3>Think Python</h3>
+          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/raw/main/thinkpython.pdf')">Download</button>
+        </div>
+
+        <div class="book-card" data-title="Clean Architecture">
+          <img src="images/clean-architecture.jpg" alt="Clean Architecture" />
+          <h3>Clean Architecture</h3>
+          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/raw/main/Book%20-%20Clean%20Architecture%20-%20Robert%20Cecil%20Martin.pdf')">Download</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Made by <a href="https://github.com/CosmicViraj">CosmicViraj</a> | <a href="https://github.com/CosmicViraj/eBook-Collection">GitHub Repository</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
