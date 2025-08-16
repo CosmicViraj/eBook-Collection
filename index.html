@@ -14,6 +14,21 @@
     </div>
   </header>
 
+  <!-- Search and Downloaded buttons -->
+<input type="text" id="searchBar" placeholder="Search books...">
+<button id="downloadedBtn">📂 Downloaded</button>
+<div id="booksContainer">
+  <!-- Example book cards -->
+  <div class="book-card" data-title="Java Programming" data-url="books/java.pdf">
+    <h3>Java Programming</h3>
+    <button onclick="downloadFile('books/java.pdf', 'Java Programming')">Download</button>
+  </div>
+  <div class="book-card" data-title="Python Basics" data-url="books/python.pdf">
+    <h3>Python Basics</h3>
+    <button onclick="downloadFile('books/python.pdf', 'Python Basics')">Download</button>
+  </div>
+</div>
+
   <main>
     <div class="container">
 
@@ -29,73 +44,73 @@
         <div class="book-card" data-title="Git Pocket Guide">
           <img src="images/git-pocket-guide.jpg" alt="Git Pocket Guide" />
           <h3>Git Pocket Guide</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/Git%20Pocket%20Guide%20-%20Silverman%2C%20Richard%20E._5525.pdf')">Download</button>
+            <button onclick="downloadFile('Pdf\Git Pocket Guide - Silverman, Richard E._5525.pdf')">Download</button>
         </div>
 
         <div class="book-card" data-title="Pro Git">
           <img src="images/pro-git.jpg" alt="PRO Git" />
           <h3>PRO Git</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/progit-en.1084.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/progit-en.1084.pdf')">Download</button>
         </div>
 
         <div class="book-card" data-title="Pro Git Second Edition">
           <img src="images/pro-git-2.jpg" alt="PRO Git Second Edition" />
           <h3>PRO Git (2nd Edition)</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/1001839.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/pro-git-2.pdf')">Download</button>
         </div>
 
         <div class="book-card" data-title="Cybersecurity for Beginners">
           <img src="images/cybersecurity.jpg" alt="Cybersecurity for Beginners" />
           <h3>Cybersecurity for Beginners</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/Meeuwisse-Rauf.-CybersecurityforBeginners.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/Meeuwisse-Rauf.-CybersecurityforBeginners.pdf')">Download</button>
         </div>
 
         <div class="book-card" data-title="The Psychology of Money">
           <img src="images/psychology-of-money.jpg" alt="Psychology of Money" />
           <h3>The Psychology of Money</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/the-psychology-of-money-by-morgan-housel.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/the-psychology-of-money-by-morgan-housel.pdf')">Download</button>
         </div>
 
         <div class="book-card" data-title="Think Python">
           <img src="images/think-python.jpg" alt="Think Python" />
           <h3>Think Python</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/thinkpython.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/thinkpython.pdf')">Download</button>
         </div>
 
         <div class="book-card" data-title="Clean Architecture">
           <img src="images/clean-architecture.jpg" alt="Clean Architecture" />
           <h3>Clean Architecture</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/Book%20-%20Clean%20Architecture%20-%20Robert%20Cecil%20Martin.pdf')">Download</button>
+          <button onclick="downloadFile('')">Download</button>
         </div>
          
         <div class="book-card" data-title="Hacking: The Art of Exploitation - Jon Erickso">
           <img src="images/Hacking The Art of Exploitation.jpg" alt="Hacking: The Art of Exploitation" />
           <h3>Hacking: The Art of Exploitation - Jon Erickso</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/hacking_artofexploitation_2ndedition.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/hacking_artofexploitation_2ndedition.pdf')">Download</button>
         </div>
 
         <div class="book-card" data-title="the-hard-thing-about-hard-things">
           <img src="images/thehardthingabouthardthings.jpg" alt="the-hard-thing-about-hard-things" />
           <h3>The Hard Things About Hard Things</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/2477the-hard-thing-about-hard-things.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/2477the-hard-thing-about-hard-things.pdf')">Download</button>
         </div>
         
         <div class="book-card" data-title="Penetration Testing - A hands-on introduction to Hacking">
           <img src="images/Penetration Testing A hands on introduction to Hacking.jpg" alt="Penetration Testing - A hands-on introduction to Hacking" />
           <h3>Penetration Testing - A hands-on introduction to Hacking</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/Penetration%20Testing%20-%20A%20hands-on%20introduction%20to%20Hacking.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/Penetration Testing - A hands-on introduction to Hacking.pdf')">Download</button>
         </div>
 
         <div class="book-card" data-title="burp-suite-cheat-sheet">
           <img src="images/burp suite cheat sheet.jpg" alt="burp-suite-cheat-sheet" />
           <h3>burp-suite-cheat-sheet</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/rose0818_burp-suite-cheat-sheet.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/rose0818_burp-suite-cheat-sheet.pdf')">Download</button>
         </div>
 
         <div class="book-card" data-title="red-team-field-manual">
           <img src="images/red team field manual.jpg" alt="red-team-field-manual" />
           <h3>red-team-field-manual</h3>
-          <button onclick="downloadFile('https://github.com/CosmicViraj/eBook-Collection/pdf/raw/main/rtfm-red-team-field-manual.pdf')">Download</button>
+          <button onclick="downloadFile('Pdf/rtfm-red-team-field-manual.pdf')">Download</button>
         </div>
 
       </div>
@@ -123,8 +138,8 @@
      <a href="https://github.com/CosmicViraj" style="color:#4da6ff;">CosmicViraj</a>
   </p>
   <p>
-     <a href="/privacy-policy.html" style="color:#4da6ff; margin:0 10px;">Privacy Policy</a> | 
-     <a href="/terms.html" style="color:#4da6ff; margin:0 10px;">Terms of Use</a> | 
+     <a href="privacy-policy.html" style="color:#4da6ff; margin:0 10px;">Privacy Policy</a> | 
+     <a href="terms.html" style="color:#4da6ff; margin:0 10px;">Terms of Use</a> | 
      <a href="mailto:jadhavviraj04@gmail.com" style="color:#4da6ff; margin:0 10px;">Contact</a>
   </p>
   <p>For any issues, suggestions, or takedown requests, please <a href="mailto:jadhavviraj04@gmail.com" style="color:#4da6ff;">email me</a>.</p>
