@@ -1,143 +1,814 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>eBook Collection</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CosmicViraj — Open eBook Library</title>
+<meta name="description" content="Free open-access eBook library for developers, tech enthusiasts and learners. Books on programming, cybersecurity, architecture and more.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0a08;
+    --surface: #13100d;
+    --surface2: #1a1510;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: rgba(201,168,76,0.15);
+    --cream: #f0e6d3;
+    --cream-dim: #a89880;
+    --red: #c0392b;
+    --green: #27ae60;
+    --text: #d4c4b0;
+    --text-dim: #6b5a48;
+    --border: rgba(201,168,76,0.12);
+    --border-hover: rgba(201,168,76,0.35);
+    --font-display: 'Playfair Display', serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    padding: 80px 48px 60px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 7vw, 96px);
+    font-weight: 900;
+    line-height: 0.95;
+    color: var(--cream);
+    margin-bottom: 24px;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-desc {
+    font-size: 16px;
+    color: var(--text-dim);
+    max-width: 480px;
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 40px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+  }
+
+  .hero-stat-val {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .hero-stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+  }
+
+  .hero-divider {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+  }
+
+  /* SEARCH + FILTER BAR */
+  .toolbar {
+    padding: 20px 48px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    background: rgba(12,10,8,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .search-wrap {
+    flex: 1;
+    position: relative;
+    max-width: 400px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px 10px 38px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    border-radius: 2px;
+  }
+
+  .search-input::placeholder { color: var(--text-dim); }
+  .search-input:focus { border-color: var(--gold); }
+
+  .filter-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .filter-tab {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    text-transform: uppercase;
+  }
+
+  .filter-tab:hover { color: var(--gold); border-color: var(--border-hover); }
+  .filter-tab.active { color: var(--bg); background: var(--gold); border-color: var(--gold); }
+
+  .result-count {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* BOOK GRID */
+  .library {
+    padding: 48px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .book-card {
+    background: var(--bg);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+  }
+
+  .book-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 0;
+    background: var(--gold);
+    transition: height 0.3s;
+  }
+
+  .book-card:hover::before { height: 100%; }
+
+  .book-card:hover {
+    background: var(--surface);
+  }
+
+  .book-card::after {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .book-card:hover::after { opacity: 1; }
+
+  .book-category {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .book-category::before {
+    content: '';
+    width: 16px;
+    height: 1px;
+    background: var(--gold);
+    display: inline-block;
+  }
+
+  .book-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: 8px;
+    transition: color 0.2s;
+  }
+
+  .book-card:hover .book-title { color: var(--gold-light); }
+
+  .book-author {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .book-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    font-weight: 300;
+    margin-bottom: 20px;
+  }
+
+  .book-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .book-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .book-dl {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: gap 0.2s;
+  }
+
+  .book-card:hover .book-dl { gap: 10px; }
+
+  /* FEATURED BOOK (large card) */
+  .featured-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px;
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 40px;
+    margin-bottom: 48px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+    text-decoration: none;
+  }
+
+  .featured-card:hover { border-color: var(--border-hover); }
+
+  .featured-card::before {
+    content: 'FEATURED';
+    position: absolute;
+    top: 20px; right: -30px;
+    background: var(--gold);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    padding: 4px 40px;
+    transform: rotate(45deg);
+  }
+
+  .featured-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .featured-title {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .featured-author {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .featured-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    font-weight: 300;
+    margin-bottom: 28px;
+    max-width: 480px;
+  }
+
+  .featured-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--gold);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 12px 24px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .featured-btn:hover { background: var(--gold-light); }
+
+  .featured-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .book-spine {
+    width: 120px;
+    height: 170px;
+    background: linear-gradient(135deg, #1a1208, #2a1f10);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-left: 8px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 8px 8px 24px rgba(0,0,0,0.6), -2px 0 8px rgba(201,168,76,0.1);
+    transform: perspective(800px) rotateY(-8deg);
+    transition: transform 0.3s;
+  }
+
+  .featured-card:hover .book-spine {
+    transform: perspective(800px) rotateY(-15deg);
+  }
+
+  .book-spine-text {
+    font-family: var(--font-display);
+    font-size: 11px;
+    color: var(--gold);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    letter-spacing: 2px;
+    text-align: center;
+    padding: 8px;
+  }
+
+  /* CONTRIBUTE BANNER */
+  .contribute-banner {
+    margin: 0 48px 48px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .contribute-text h3 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+
+  .contribute-text p {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+
+  .contribute-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 12px 24px;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  .contribute-btn:hover { background: var(--gold); color: var(--bg); }
+
+  /* FOOTER */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cream);
+  }
+
+  .footer-logo span { color: var(--gold); }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-link {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+    text-transform: uppercase;
+  }
+
+  .footer-link:hover { color: var(--gold); }
+
+  /* HIDDEN state for filtering */
+  .book-card.hidden { display: none; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    padding: 80px;
+    text-align: center;
+    display: none;
+  }
+
+  .empty-state.visible { display: block; }
+
+  .empty-state h3 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .empty-state p {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .book-card {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .book-card:nth-child(1) { animation-delay: 0.05s; }
+  .book-card:nth-child(2) { animation-delay: 0.10s; }
+  .book-card:nth-child(3) { animation-delay: 0.15s; }
+  .book-card:nth-child(4) { animation-delay: 0.20s; }
+  .book-card:nth-child(5) { animation-delay: 0.25s; }
+  .book-card:nth-child(6) { animation-delay: 0.30s; }
+  .book-card:nth-child(7) { animation-delay: 0.35s; }
+
+  @media (max-width: 768px) {
+    .hero { padding: 48px 24px 40px; }
+    .hero-stats { gap: 20px; }
+    .toolbar { padding: 16px 24px; flex-wrap: wrap; }
+    .library { padding: 24px; }
+    .contribute-banner { padding: 24px; flex-direction: column; margin: 0 24px 24px; }
+    .footer { padding: 20px 24px; flex-direction: column; gap: 16px; text-align: center; }
+    .featured-card { grid-template-columns: 1fr; padding: 28px; margin: 0 0 32px; }
+    .featured-visual { display: none; }
+    .book-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>📚 eBook Collection</h1>
-      <p>Open-access library for programmers & learners</p>
-    </div>
-  </header>
 
-  <!-- Search and Downloaded buttons -->
-<input type="text" id="searchBar" placeholder="Search books...">
-<button id="downloadedBtn">📂 Downloaded</button>
-<div id="booksContainer">
-  <!-- Example book cards -->
-  
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-eyebrow">// Open Access Library — Free Forever</div>
+  <h1 class="hero-title">Read.<br><em>Learn.</em><br>Build.</h1>
+  <p class="hero-desc">A curated collection of essential books on programming, cybersecurity, software architecture, and personal finance. Free to read. Free to share.</p>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-val" id="total-books">7</div>
+      <div class="hero-stat-label">Books Available</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div>
+      <div class="hero-stat-val">4</div>
+      <div class="hero-stat-label">Categories</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div>
+      <div class="hero-stat-val">Free</div>
+      <div class="hero-stat-label">Always</div>
+    </div>
+  </div>
+</header>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" type="text" id="search" placeholder="Search books, authors..." oninput="filterBooks()">
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setFilter('all', this)">All</button>
+    <button class="filter-tab" onclick="setFilter('programming', this)">Programming</button>
+    <button class="filter-tab" onclick="setFilter('cybersecurity', this)">Security</button>
+    <button class="filter-tab" onclick="setFilter('architecture', this)">Architecture</button>
+    <button class="filter-tab" onclick="setFilter('finance', this)">Finance</button>
+  </div>
+  <div class="result-count" id="result-count">7 books</div>
 </div>
 
-  <main>
-    <div class="container">
+<!-- LIBRARY -->
+<main class="library">
 
-    <marquee behavior="scroll" direction="left" scrollamount="6" style="color: red; font-weight: bold; margin: 10px 0;">
-  ⚠️ New books are added every last week of the month. Stay tuned for updates!
-      </marquee>
-
-    
-      <h2>Available eBooks</h2>
-      <div class="book-grid" id="bookList">
-
-        <!-- Book Cards -->
-        <div class="book-card" data-title="Git Pocket Guide">
-          <img src="images/git-pocket-guide.jpg" alt="Git Pocket Guide" />
-          <h3>Git Pocket Guide</h3>
-            <button onclick="downloadFile('Pdf/Git Pocket Guide - Silverman, Richard E._5525.pdf')">Download</button>
-        </div>
-
-        <div class="book-card" data-title="Pro Git">
-          <img src="images/pro-git.jpg" alt="PRO Git" />
-          <h3>PRO Git</h3>
-          <button onclick="downloadFile('Pdf/progit-en.1084.pdf')">Download</button>
-        </div>
-
-        <div class="book-card" data-title="Pro Git Second Edition">
-          <img src="images/pro-git-2.jpg" alt="PRO Git Second Edition" />
-          <h3>PRO Git (2nd Edition)</h3>
-          <button onclick="downloadFile('Pdf/pro-git-2.pdf')">Download</button>
-        </div>
-
-        <div class="book-card" data-title="Cybersecurity for Beginners">
-          <img src="images/cybersecurity.jpg" alt="Cybersecurity for Beginners" />
-          <h3>Cybersecurity for Beginners</h3>
-          <button onclick="downloadFile('Pdf/Meeuwisse-Rauf.-CybersecurityforBeginners.pdf')">Download</button>
-        </div>
-
-        <div class="book-card" data-title="The Psychology of Money">
-          <img src="images/psychology-of-money.jpg" alt="Psychology of Money" />
-          <h3>The Psychology of Money</h3>
-          <button onclick="downloadFile('Pdf/the-psychology-of-money-by-morgan-housel.pdf')">Download</button>
-        </div>
-
-        <div class="book-card" data-title="Think Python">
-          <img src="images/think-python.jpg" alt="Think Python" />
-          <h3>Think Python</h3>
-          <button onclick="downloadFile('Pdf/thinkpython.pdf')">Download</button>
-        </div>
-
-        <div class="book-card" data-title="Clean Architecture">
-          <img src="images/clean-architecture.jpg" alt="Clean Architecture" />
-          <h3>Clean Architecture</h3>
-          <button onclick="downloadFile('')">Download</button>
-        </div>
-         
-        <div class="book-card" data-title="Hacking: The Art of Exploitation - Jon Erickso">
-          <img src="images/Hacking The Art of Exploitation.jpg" alt="Hacking: The Art of Exploitation" />
-          <h3>Hacking: The Art of Exploitation - Jon Erickso</h3>
-          <button onclick="downloadFile('Pdf/hacking_artofexploitation_2ndedition.pdf')">Download</button>
-        </div>
-
-        <div class="book-card" data-title="the-hard-thing-about-hard-things">
-          <img src="images/thehardthingabouthardthings.jpg" alt="the-hard-thing-about-hard-things" />
-          <h3>The Hard Things About Hard Things</h3>
-          <button onclick="downloadFile('Pdf/2477the-hard-thing-about-hard-things.pdf')">Download</button>
-        </div>
-        
-        <div class="book-card" data-title="Penetration Testing - A hands-on introduction to Hacking">
-          <img src="images/Penetration Testing A hands on introduction to Hacking.jpg" alt="Penetration Testing - A hands-on introduction to Hacking" />
-          <h3>Penetration Testing - A hands-on introduction to Hacking</h3>
-          <button onclick="downloadFile('Pdf/Penetration Testing - A hands-on introduction to Hacking.pdf')">Download</button>
-        </div>
-
-        <div class="book-card" data-title="burp-suite-cheat-sheet">
-          <img src="images/burp suite cheat sheet.jpg" alt="burp-suite-cheat-sheet" />
-          <h3>burp-suite-cheat-sheet</h3>
-          <button onclick="downloadFile('Pdf/rose0818_burp-suite-cheat-sheet.pdf')">Download</button>
-        </div>
-
-        <div class="book-card" data-title="red-team-field-manual">
-          <img src="images/red team field manual.jpg" alt="red-team-field-manual" />
-          <h3>red-team-field-manual</h3>
-          <button onclick="downloadFile('Pdf/rtfm-red-team-field-manual.pdf')">Download</button>
-        </div>
-
+  <!-- FEATURED -->
+  <div class="section-label">Featured This Month</div>
+  <a class="featured-card" href="https://github.com/CosmicViraj/eBook-Collection/blob/main/Book%20-%20Clean%20Architecture%20-%20Robert%20Cecil%20Martin.pdf" target="_blank">
+    <div>
+      <div class="featured-badge">★ Editor's Pick</div>
+      <div class="featured-title">Clean Architecture</div>
+      <div class="featured-author">Robert C. Martin — "Uncle Bob"</div>
+      <p class="featured-desc">A craftsman's guide to software structure and design. Learn how to build systems that stand the test of time — with clear separation of concerns, testable code, and architectures that don't get in your way.</p>
+      <span class="featured-btn">Read Now →</span>
+    </div>
+    <div class="featured-visual">
+      <div class="book-spine">
+        <div class="book-spine-text">Clean Architecture</div>
       </div>
     </div>
-  </main>
+  </a>
 
-   <section style="background:#f9f9f9; padding:20px; text-align:center;">
-    <h2>📩 Stay Updated!</h2>
-    <p>Get notified when new eBooks are added. Enter your email below:</p>
-    
-    <!-- Replace src with your Google Form link -->
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc4jQb0u0R2wycwuVfu8UrxrZEmZlyroA6N-WLJa-0k2kiMeA/viewform?embedded=true" 
-            width="100%" 
-            height="500" 
-            frameborder="0" 
-            marginheight="0" 
-            marginwidth="0">
-      Loading…
-    </iframe>
-  </section>
+  <!-- BOOK GRID -->
+  <div class="section-label">All Books</div>
+  <div class="book-grid" id="book-grid">
 
+    <a class="book-card" href="https://github.com/CosmicViraj/eBook-Collection/blob/main/Meeuwisse-Rauf.-CybersecurityforBeginners.pdf" target="_blank" data-category="cybersecurity" data-title="cybersecurity for beginners rauf meeuwisse">
+      <div class="book-category">Cybersecurity</div>
+      <div class="book-title">Cybersecurity for Beginners</div>
+      <div class="book-author">Rauf Meeuwisse</div>
+      <p class="book-desc">The essential starting point for anyone new to cybersecurity. Clear, jargon-free explanations of how attacks work and how to defend against them.</p>
+      <div class="book-footer">
+        <span class="book-tag">Beginner</span>
+        <span class="book-dl">Read PDF →</span>
+      </div>
+    </a>
 
-  <footer style="background:#111; color:#eee; padding:20px; text-align:center; font-size:14px;">
-  <p>© 2025 eBook Collection | Made by 
-     <a href="https://github.com/CosmicViraj" style="color:#4da6ff;">CosmicViraj</a>
-  </p>
-  <p>
-     <a href="privacy-policy.html" style="color:#4da6ff; margin:0 10px;">Privacy Policy</a> | 
-     <a href="terms.html" style="color:#4da6ff; margin:0 10px;">Terms of Use</a> | 
-     <a href="mailto:jadhavviraj04@gmail.com" style="color:#4da6ff; margin:0 10px;">Contact</a>
-  </p>
-  <p>For any issues, suggestions, or takedown requests, please <a href="mailto:jadhavviraj04@gmail.com" style="color:#4da6ff;">email me</a>.</p>
+    <a class="book-card" href="https://github.com/CosmicViraj/eBook-Collection/blob/main/Git%20Pocket%20Guide%20-%20Silverman%2C%20Richard%20E._5525.pdf" target="_blank" data-category="programming" data-title="git pocket guide richard silverman">
+      <div class="book-category">Programming</div>
+      <div class="book-title">Git Pocket Guide</div>
+      <div class="book-author">Richard E. Silverman</div>
+      <p class="book-desc">A concise, practical reference for working Git users. Everything you need for day-to-day version control — commands, workflows, and best practices.</p>
+      <div class="book-footer">
+        <span class="book-tag">Reference</span>
+        <span class="book-dl">Read PDF →</span>
+      </div>
+    </a>
+
+    <a class="book-card" href="https://github.com/CosmicViraj/eBook-Collection/blob/main/progit-en.1084.pdf" target="_blank" data-category="programming" data-title="pro git scott chacon ben straub">
+      <div class="book-category">Programming</div>
+      <div class="book-title">Pro Git</div>
+      <div class="book-author">Scott Chacon & Ben Straub</div>
+      <p class="book-desc">The definitive guide to Git — from basics to advanced internals. The book every developer should read at least once. Completely free, officially.</p>
+      <div class="book-footer">
+        <span class="book-tag">Intermediate</span>
+        <span class="book-dl">Read PDF →</span>
+      </div>
+    </a>
+
+    <a class="book-card" href="https://github.com/CosmicViraj/eBook-Collection/blob/main/1001839.pdf" target="_blank" data-category="programming" data-title="pro git second edition">
+      <div class="book-category">Programming</div>
+      <div class="book-title">Pro Git <span style="color:var(--gold);font-size:14px">2nd Ed.</span></div>
+      <div class="book-author">Scott Chacon & Ben Straub</div>
+      <p class="book-desc">The updated second edition with new chapters on GitHub workflows, submodules, and modern Git features. The most complete Git resource available.</p>
+      <div class="book-footer">
+        <span class="book-tag">Intermediate</span>
+        <span class="book-dl">Read PDF →</span>
+      </div>
+    </a>
+
+    <a class="book-card" href="https://github.com/CosmicViraj/eBook-Collection/blob/main/the-psychology-of-money-by-morgan-housel.pdf" target="_blank" data-category="finance" data-title="psychology of money morgan housel finance">
+      <div class="book-category">Finance</div>
+      <div class="book-title">The Psychology of Money</div>
+      <div class="book-author">Morgan Housel</div>
+      <p class="book-desc">Timeless lessons on wealth, greed, and happiness. Why smart people make bad financial decisions — and how to think about money more clearly.</p>
+      <div class="book-footer">
+        <span class="book-tag">All Levels</span>
+        <span class="book-dl">Read PDF →</span>
+      </div>
+    </a>
+
+    <a class="book-card" href="https://github.com/CosmicViraj/eBook-Collection/blob/main/thinkpython.pdf" target="_blank" data-category="programming" data-title="think python allen downey">
+      <div class="book-category">Programming</div>
+      <div class="book-title">Think Python</div>
+      <div class="book-author">Allen B. Downey</div>
+      <p class="book-desc">How to think like a computer scientist using Python. The ideal first programming book — builds problem-solving skills from the ground up.</p>
+      <div class="book-footer">
+        <span class="book-tag">Beginner</span>
+        <span class="book-dl">Read PDF →</span>
+      </div>
+    </a>
+
+    <a class="book-card" href="https://github.com/CosmicViraj/eBook-Collection/blob/main/Book%20-%20Clean%20Architecture%20-%20Robert%20Cecil%20Martin.pdf" target="_blank" data-category="architecture" data-title="clean architecture robert martin uncle bob">
+      <div class="book-category">Architecture</div>
+      <div class="book-title">Clean Architecture</div>
+      <div class="book-author">Robert C. Martin</div>
+      <p class="book-desc">A guide to software structure and design that every serious developer should study. Build systems that are maintainable, testable, and flexible.</p>
+      <div class="book-footer">
+        <span class="book-tag">Advanced</span>
+        <span class="book-dl">Read PDF →</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="empty-state" id="empty-state">
+    <h3>No books found</h3>
+    <p>Try a different search term or category</p>
+  </div>
+
+</main>
+
+<!-- CONTRIBUTE BANNER -->
+<div class="contribute-banner">
+  <div class="contribute-text">
+    <h3>Know a great book?</h3>
+    <p>This library grows through community contributions. Submit a pull request to add free, open-access books to the collection.</p>
+  </div>
+  <a class="contribute-btn" href="https://github.com/CosmicViraj/eBook-Collection" target="_blank">
+    ★ Contribute on GitHub →
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-logo">Cosmic<span>Viraj</span> Library</div>
+  <div class="footer-links">
+    <a class="footer-link" href="https://github.com/CosmicViraj/eBook-Collection" target="_blank">GitHub</a>
+    <a class="footer-link" href="privacy-policy.html">Privacy</a>
+    <a class="footer-link" href="terms.html">Terms</a>
+    <a class="footer-link" href="https://github.com/CosmicViraj/sentinel-cyber-portal" target="_blank">SENTINEL Project</a>
+  </div>
 </footer>
 
-  <script src="script.js"></script>
+<script>
+  let currentFilter = 'all';
+
+  function setFilter(category, btn) {
+    currentFilter = category;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    filterBooks();
+  }
+
+  function filterBooks() {
+    const query = document.getElementById('search').value.toLowerCase();
+    const cards = document.querySelectorAll('.book-card');
+    let visible = 0;
+
+    cards.forEach(card => {
+      const title = card.dataset.title || '';
+      const category = card.dataset.category || '';
+      const matchesSearch = title.includes(query);
+      const matchesFilter = currentFilter === 'all' || category === currentFilter;
+
+      if (matchesSearch && matchesFilter) {
+        card.classList.remove('hidden');
+        visible++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+
+    document.getElementById('result-count').textContent = visible + (visible === 1 ? ' book' : ' books');
+    document.getElementById('empty-state').classList.toggle('visible', visible === 0);
+  }
+</script>
 </body>
 </html>
