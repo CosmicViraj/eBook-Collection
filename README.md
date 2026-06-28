@@ -1,16 +1,37 @@
-# eBook-Collection
-This repository contains a collection of eBooks on programming, technology, and general knowledge. It serves as an open-access library for learners and tech enthusiasts. Explore, contribute, and share valuable resources to support your educational journey.
+# eBook Collection
 
-[Git Pocket Guide (Richard E.silverman)](https://github.com/CosmicViraj/eBook-Collection/blob/main/Git%20Pocket%20Guide%20-%20Silverman%2C%20Richard%20E._5525.pdf)
+This repository contains a collection of eBooks on programming, software engineering, cybersecurity, computer science, and personal development. It serves as an open-access library for learners and tech enthusiasts. Explore, contribute, and share valuable resources to support your educational journey.
 
-[PRO Git](https://github.com/CosmicViraj/eBook-Collection/blob/main/progit-en.1084.pdf)
+## Available eBooks
 
-[PRO Git (second Edition) ](https://github.com/CosmicViraj/eBook-Collection/blob/main/1001839.pdf)
+### Programming & Software Development
 
-[Meeuwisse-Rauf.-CybersecurityforBeginners](https://github.com/CosmicViraj/eBook-Collection/blob/main/Meeuwisse-Rauf.-CybersecurityforBeginners.pdf)
+- [Git Pocket Guide](./Pdf/Git%20Pocket%20Guide%20-%20Silverman,%20Richard%20E._5525.pdf)
+- [Pro Git](./Pdf/progit-en.1084.pdf)
+- [Pro Git (Second Edition)](./Pdf/pro-git-2.pdf)
+- [Think Python](./Pdf/thinkpython.pdf)
+- [Clean Architecture - Robert C. Martin](./Pdf/Robert%20Cecil%20Martin.pdf)
 
-[the-psychology-of-money-by-morgan-housel](https://github.com/CosmicViraj/eBook-Collection/blob/main/the-psychology-of-money-by-morgan-housel.pdf)
+### Cybersecurity & Ethical Hacking
 
-[thinkpython](https://github.com/CosmicViraj/eBook-Collection/blob/main/thinkpython.pdf)
+- [Cybersecurity for Beginners](./Pdf/Meeuwisse-Rauf.-CybersecurityforBeginners.pdf)
+- [Penetration Testing - A Hands-on Introduction to Hacking](./Pdf/Penetration%20Testing%20-%20A%20hands-on%20introduction%20to%20Hacking.pdf)
+- [Hacking: The Art of Exploitation (2nd Edition)](./Pdf/hacking_artofexploitation_2ndedition.pdf)
+- [Burp Suite Cheat Sheet](./Pdf/rose0818_burp-suite-cheat-sheet.pdf)
+- [Red Team Field Manual (RTFM)](./Pdf/rtfm-red-team-field-manual.pdf)
 
-[Clean Architecture - Robert Cecil Martin](https://github.com/CosmicViraj/eBook-Collection/blob/main/Book%20-%20Clean%20Architecture%20-%20Robert%20Cecil%20Martin.pdf)
+### Software Engineering & Career
+
+- [The Hard Thing About Hard Things](./Pdf/2477the-hard-thing-about-hard-things.pdf)
+
+### Personal Development & Finance
+
+- [The Psychology of Money](./Pdf/the-psychology-of-money-by-morgan-housel.pdf)
+
+## Contributing
+
+Contributions are welcome. If you'd like to add high-quality educational resources, fork the repository, add your files, update the README if necessary, and submit a pull request.
+
+## License
+
+This repository is intended for educational purposes. Please ensure that any content you contribute complies with applicable copyright laws and licensing terms.
