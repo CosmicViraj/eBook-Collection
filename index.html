@@ -3,1349 +3,579 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Architecture — Robert C. Martin</title>
+<title>BookNest - Free E-Book Library</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 <style>
-  :root {
-    --navy: #0B1120;
-    --navy-mid: #111827;
-    --navy-light: #1C2B45;
-    --blueprint: #1A3A6B;
-    --blue-accent: #2563EB;
-    --amber: #F5A623;
-    --amber-dim: rgba(245,166,35,0.12);
-    --white: #F8FAFF;
-    --slate: #8DA4C2;
-    --slate-dim: rgba(141,164,194,0.12);
-    --green: #10B981;
-    --sidebar-w: 260px;
-    --radius: 8px;
-    --transition: 0.22s ease;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--navy);
-    color: var(--white);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    overflow-x: hidden;
-  }
-
-  /* ─── SIDEBAR ─── */
-  #sidebar {
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    width: var(--sidebar-w);
-    background: #0D1520;
-    border-right: 1px solid rgba(141,164,194,0.1);
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
-    transition: transform var(--transition);
-  }
-
-  .sidebar-logo {
-    padding: 24px 20px 16px;
-    border-bottom: 1px solid rgba(141,164,194,0.08);
-  }
-
-  .sidebar-logo .book-icon {
-    width: 36px; height: 36px;
-    background: var(--amber);
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; margin-bottom: 10px;
-  }
-
-  .sidebar-logo h2 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px; font-weight: 600;
-    color: var(--white); letter-spacing: 0.5px;
-    line-height: 1.4;
-  }
-
-  .sidebar-logo p {
-    font-size: 11px; color: var(--slate); margin-top: 2px;
-  }
-
-  .sidebar-section {
-    padding: 16px 12px 8px;
-  }
-
-  .sidebar-section-label {
-    font-size: 10px; font-weight: 600;
-    color: var(--slate); text-transform: uppercase;
-    letter-spacing: 1.2px; padding: 0 8px 8px;
-  }
-
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px; color: var(--slate);
-    transition: all var(--transition);
-    text-decoration: none;
-  }
-
-  .nav-item:hover { background: var(--slate-dim); color: var(--white); }
-  .nav-item.active { background: var(--amber-dim); color: var(--amber); }
-
-  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
-
-  .sidebar-bottom {
-    margin-top: auto;
-    padding: 16px;
-    border-top: 1px solid rgba(141,164,194,0.08);
-  }
-
-  .progress-label {
-    font-size: 11px; color: var(--slate);
-    display: flex; justify-content: space-between; margin-bottom: 6px;
-  }
-
-  .progress-bar {
-    height: 4px; background: rgba(141,164,194,0.15);
-    border-radius: 99px; overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%; width: 0%;
-    background: linear-gradient(90deg, var(--amber), #FFC85E);
-    border-radius: 99px;
-    transition: width 1.2s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
-  /* ─── MAIN ─── */
-  #main {
-    margin-left: var(--sidebar-w);
-    flex: 1;
-    min-height: 100vh;
-  }
-
-  /* ─── TOPBAR ─── */
-  #topbar {
-    position: sticky; top: 0; z-index: 90;
-    background: rgba(11,17,32,0.85);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(141,164,194,0.08);
-    padding: 12px 32px;
-    display: flex; align-items: center; gap: 16px;
-  }
-
-  .topbar-tabs {
-    display: flex; gap: 4px;
-  }
-
-  .tab-btn {
-    padding: 6px 14px; border-radius: 6px; border: none;
-    background: transparent; color: var(--slate);
-    font-size: 13px; font-family: 'Inter', sans-serif;
-    cursor: pointer; transition: all var(--transition);
-  }
-
-  .tab-btn:hover { background: var(--slate-dim); color: var(--white); }
-  .tab-btn.active { background: var(--amber-dim); color: var(--amber); }
-
-  .topbar-search {
-    margin-left: auto;
-    position: relative;
-  }
-
-  .topbar-search input {
-    background: rgba(141,164,194,0.08);
-    border: 1px solid rgba(141,164,194,0.15);
-    border-radius: 8px;
-    color: var(--white); font-size: 13px;
-    padding: 7px 14px 7px 34px;
-    width: 220px; outline: none;
-    font-family: 'Inter', sans-serif;
-    transition: border-color var(--transition);
-  }
-
-  .topbar-search input::placeholder { color: var(--slate); }
-  .topbar-search input:focus { border-color: var(--amber); }
-
-  .search-icon {
-    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-    color: var(--slate); font-size: 14px; pointer-events: none;
-  }
-
-  /* ─── SECTIONS ─── */
-  .section { display: none; }
-  .section.active { display: block; }
-
-  /* ─── HERO ─── */
-  #hero {
-    padding: 60px 32px 40px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-    min-height: calc(100vh - 57px);
-  }
-
-  .hero-text .eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; color: var(--amber);
-    letter-spacing: 2px; text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-
-  .hero-text h1 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(36px, 4vw, 56px);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -1.5px;
-    margin-bottom: 20px;
-  }
-
-  .hero-text h1 span { color: var(--amber); }
-
-  .hero-text .subtitle {
-    font-size: 16px; color: var(--slate);
-    line-height: 1.7; max-width: 460px;
-    margin-bottom: 32px;
-  }
-
-  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-  .btn-primary {
-    background: var(--amber); color: #0B0B0B;
-    font-weight: 600; font-size: 14px;
-    padding: 12px 24px; border-radius: var(--radius);
-    border: none; cursor: pointer;
-    font-family: 'Space Grotesk', sans-serif;
-    transition: all var(--transition);
-    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
-  }
-
-  .btn-primary:hover { background: #FFC85E; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(245,166,35,0.3); }
-
-  .btn-ghost {
-    background: transparent; color: var(--white);
-    font-weight: 500; font-size: 14px;
-    padding: 12px 24px; border-radius: var(--radius);
-    border: 1px solid rgba(141,164,194,0.25); cursor: pointer;
-    font-family: 'Space Grotesk', sans-serif;
-    transition: all var(--transition);
-    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
-  }
-
-  .btn-ghost:hover { border-color: var(--slate); background: var(--slate-dim); }
-
-  .hero-meta {
-    display: flex; gap: 24px; margin-top: 36px;
-    flex-wrap: wrap;
-  }
-
-  .meta-item { text-align: center; }
-  .meta-item .num {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 28px; font-weight: 700; color: var(--amber);
-  }
-  .meta-item .lbl { font-size: 11px; color: var(--slate); margin-top: 2px; }
-
-  /* ─── ARCHITECTURE DIAGRAM ─── */
-  .arch-diagram {
-    position: relative;
-    width: 380px; height: 380px;
-    margin: auto;
-    flex-shrink: 0;
-  }
-
-  .arch-diagram svg {
-    width: 100%; height: 100%;
-    overflow: visible;
-  }
-
-  .ring {
-    transform-origin: 190px 190px;
-    animation: pulse-ring 4s ease-in-out infinite;
-  }
-
-  .ring:nth-child(2) { animation-delay: 0.3s; }
-  .ring:nth-child(3) { animation-delay: 0.6s; }
-  .ring:nth-child(4) { animation-delay: 0.9s; }
-
-  @keyframes pulse-ring {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-
-  .ring-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-  }
-
-  /* ─── OVERVIEW CARDS ─── */
-  #overview { padding: 48px 32px; }
-
-  .section-header { margin-bottom: 36px; }
-  .section-header .eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; color: var(--amber);
-    letter-spacing: 2px; text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .section-header h2 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 32px; font-weight: 700;
-    letter-spacing: -0.8px;
-  }
-  .section-header p { color: var(--slate); font-size: 15px; margin-top: 8px; line-height: 1.6; }
-
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-  }
-
-  .card {
-    background: var(--navy-mid);
-    border: 1px solid rgba(141,164,194,0.08);
-    border-radius: 12px; padding: 24px;
-    transition: all var(--transition);
-    cursor: pointer;
-  }
-
-  .card:hover {
-    border-color: rgba(245,166,35,0.3);
-    background: var(--navy-light);
-    transform: translateY(-2px);
-  }
-
-  .card-icon {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; margin-bottom: 14px;
-  }
-
-  .card h3 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 16px; font-weight: 600; margin-bottom: 8px;
-  }
-
-  .card p { font-size: 13px; color: var(--slate); line-height: 1.6; }
-
-  .card .tag {
-    display: inline-block;
-    margin-top: 14px;
-    padding: 3px 10px;
-    border-radius: 99px;
-    font-size: 11px; font-weight: 500;
-    background: var(--amber-dim); color: var(--amber);
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  /* ─── CHAPTERS ─── */
-  #chapters { padding: 48px 32px; }
-
-  .chapters-list { display: flex; flex-direction: column; gap: 2px; }
-
-  .chapter-item {
-    display: grid;
-    grid-template-columns: 48px 1fr auto;
-    align-items: center;
-    gap: 16px;
-    padding: 16px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all var(--transition);
-    border: 1px solid transparent;
-  }
-
-  .chapter-item:hover { background: var(--navy-light); border-color: rgba(141,164,194,0.08); }
-
-  .chapter-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; color: var(--amber);
-    font-weight: 500; text-align: center;
-  }
-
-  .chapter-info h4 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px; font-weight: 600; margin-bottom: 3px;
-  }
-
-  .chapter-info p { font-size: 12px; color: var(--slate); line-height: 1.5; }
-
-  .chapter-part {
-    font-size: 10px; font-weight: 600;
-    padding: 3px 8px; border-radius: 4px;
-    font-family: 'JetBrains Mono', monospace;
-    white-space: nowrap;
-  }
-
-  .part-1 { background: rgba(37,99,235,0.15); color: #60A5FA; }
-  .part-2 { background: rgba(16,185,129,0.12); color: #34D399; }
-  .part-3 { background: rgba(245,166,35,0.12); color: var(--amber); }
-  .part-4 { background: rgba(168,85,247,0.12); color: #C084FC; }
-  .part-5 { background: rgba(239,68,68,0.12); color: #F87171; }
-
-  /* ─── PDF VIEWER ─── */
-  #pdf-view { padding: 48px 32px; }
-
-  .pdf-toolbar {
-    display: flex; align-items: center; gap: 12px;
-    background: var(--navy-mid);
-    border: 1px solid rgba(141,164,194,0.1);
-    border-radius: 10px 10px 0 0;
-    padding: 12px 16px;
-    flex-wrap: wrap;
-  }
-
-  .pdf-toolbar .tool-group { display: flex; gap: 4px; }
-
-  .tool-btn {
-    padding: 6px 10px; border-radius: 6px;
-    background: transparent; border: 1px solid rgba(141,164,194,0.15);
-    color: var(--slate); font-size: 13px; cursor: pointer;
-    transition: all var(--transition);
-    font-family: 'Inter', sans-serif;
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  .tool-btn:hover { background: var(--slate-dim); color: var(--white); }
-  .tool-btn.active { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,166,35,0.3); }
-
-  .pdf-page-input {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 13px; color: var(--slate);
-  }
-
-  .pdf-page-input input {
-    width: 48px; padding: 5px 8px; text-align: center;
-    background: rgba(141,164,194,0.08);
-    border: 1px solid rgba(141,164,194,0.15); border-radius: 5px;
-    color: var(--white); font-size: 13px; font-family: 'JetBrains Mono', monospace;
-    outline: none;
-  }
-
-  .pdf-page-input input:focus { border-color: var(--amber); }
-
-  .zoom-input {
-    display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--slate);
-    margin-left: auto;
-  }
-
-  .zoom-select {
-    background: rgba(141,164,194,0.08);
-    border: 1px solid rgba(141,164,194,0.15); border-radius: 5px;
-    color: var(--white); font-size: 13px; padding: 5px 8px; outline: none; cursor: pointer;
-  }
-
-  .pdf-container {
-    background: #2a2a2a;
-    border: 1px solid rgba(141,164,194,0.1);
-    border-top: none;
-    border-radius: 0 0 10px 10px;
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .pdf-embed-wrap {
-    width: 100%;
-    height: 82vh;
-    position: relative;
-  }
-
-  .pdf-embed-wrap iframe {
-    width: 100%; height: 100%; border: none; display: block;
-  }
-
-  .pdf-placeholder {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 16px; padding: 60px 32px; text-align: center;
-    color: var(--slate); height: 60vh;
-  }
-
-  .pdf-placeholder .big-icon { font-size: 56px; }
-  .pdf-placeholder h3 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; color: var(--white); }
-  .pdf-placeholder p { font-size: 14px; max-width: 400px; line-height: 1.6; }
-
-  .upload-area {
-    border: 2px dashed rgba(141,164,194,0.25); border-radius: 12px;
-    padding: 32px 48px; text-align: center; cursor: pointer;
-    transition: border-color var(--transition);
-    margin-top: 12px;
-  }
-  .upload-area:hover { border-color: var(--amber); }
-
-  .upload-area input[type="file"] { display: none; }
-
-  /* ─── NOTES ─── */
-  #notes { padding: 48px 32px; }
-
-  .notes-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; min-height: 70vh; }
-
-  .notes-sidebar {
-    background: var(--navy-mid); border: 1px solid rgba(141,164,194,0.08);
-    border-radius: 12px; overflow: hidden;
-  }
-
-  .notes-sidebar-header {
-    padding: 16px; border-bottom: 1px solid rgba(141,164,194,0.08);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-
-  .notes-sidebar-header h3 { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; }
-
-  .add-note-btn {
-    width: 28px; height: 28px; border-radius: 6px;
-    background: var(--amber-dim); border: none; color: var(--amber);
-    font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all var(--transition);
-  }
-  .add-note-btn:hover { background: var(--amber); color: #0B0B0B; }
-
-  .notes-list { padding: 8px; max-height: calc(70vh - 60px); overflow-y: auto; }
-
-  .note-item {
-    padding: 10px 12px; border-radius: 8px; cursor: pointer;
-    transition: all var(--transition);
-    margin-bottom: 2px;
-  }
-  .note-item:hover { background: var(--slate-dim); }
-  .note-item.active { background: var(--amber-dim); }
-
-  .note-item h4 { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
-  .note-item p { font-size: 11px; color: var(--slate); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .note-item .note-date { font-size: 10px; color: var(--slate); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
-
-  .note-editor { background: var(--navy-mid); border: 1px solid rgba(141,164,194,0.08); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-
-  .note-editor-header { padding: 14px 16px; border-bottom: 1px solid rgba(141,164,194,0.08); display: flex; gap: 12px; align-items: center; }
-
-  .note-title-input {
-    flex: 1; background: transparent; border: none; outline: none;
-    font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600;
-    color: var(--white);
-  }
-  .note-title-input::placeholder { color: var(--slate); }
-
-  .note-chapter-tag {
-    font-size: 11px; padding: 4px 10px; border-radius: 6px;
-    background: var(--amber-dim); color: var(--amber);
-    font-family: 'JetBrains Mono', monospace; white-space: nowrap;
-  }
-
-  .note-textarea {
-    flex: 1; padding: 20px; background: transparent; border: none; outline: none;
-    font-size: 14px; color: var(--white); line-height: 1.8; resize: none;
-    font-family: 'Inter', sans-serif; min-height: 400px;
-  }
-  .note-textarea::placeholder { color: var(--slate); }
-
-  .note-footer { padding: 12px 16px; border-top: 1px solid rgba(141,164,194,0.08); display: flex; gap: 8px; justify-content: flex-end; }
-
-  /* ─── CONCEPTS ─── */
-  #concepts { padding: 48px 32px; }
-
-  .concepts-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;
-  }
-
-  .concept-card {
-    background: var(--navy-mid); border: 1px solid rgba(141,164,194,0.08);
-    border-radius: 12px; padding: 20px;
-    transition: all var(--transition);
-  }
-
-  .concept-card:hover { border-color: rgba(141,164,194,0.2); transform: translateY(-2px); }
-
-  .concept-card .badge {
-    display: inline-block; padding: 3px 10px; border-radius: 99px;
-    font-size: 10px; font-weight: 600; font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;
-  }
-
-  .concept-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600; margin-bottom: 10px; }
-  .concept-card p { font-size: 13px; color: var(--slate); line-height: 1.7; }
-
-  .concept-card .code-example {
-    margin-top: 14px; padding: 12px;
-    background: rgba(0,0,0,0.3); border-radius: 8px;
-    font-family: 'JetBrains Mono', monospace; font-size: 12px;
-    color: #7DD3FC; line-height: 1.7; overflow-x: auto;
-  }
-
-  .concept-card .code-example .kw { color: #C084FC; }
-  .concept-card .code-example .cls { color: #FCD34D; }
-  .concept-card .code-example .cm { color: #6B7280; }
-
-  /* ─── QUIZ ─── */
-  #quiz { padding: 48px 32px; }
-
-  .quiz-card {
-    max-width: 700px; margin: 0 auto;
-    background: var(--navy-mid); border: 1px solid rgba(141,164,194,0.08);
-    border-radius: 16px; padding: 36px;
-  }
-
-  .quiz-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
-  .quiz-progress-text { font-size: 13px; color: var(--slate); }
-  .quiz-score-badge { background: var(--amber-dim); color: var(--amber); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 4px 12px; border-radius: 99px; }
-
-  .quiz-q-progress { height: 3px; background: rgba(141,164,194,0.1); border-radius: 99px; margin-bottom: 28px; }
-  .quiz-q-fill { height: 100%; background: var(--amber); border-radius: 99px; transition: width 0.4s ease; }
-
-  .quiz-question { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; line-height: 1.4; margin-bottom: 28px; }
-
-  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
-
-  .quiz-option {
-    padding: 14px 18px; border-radius: 10px; cursor: pointer;
-    border: 1px solid rgba(141,164,194,0.15);
-    font-size: 14px; transition: all var(--transition);
-    background: transparent;
-    color: var(--white); text-align: left; font-family: 'Inter', sans-serif;
-  }
-
-  .quiz-option:hover:not(:disabled) { border-color: var(--amber); background: var(--amber-dim); }
-  .quiz-option.correct { border-color: var(--green); background: rgba(16,185,129,0.12); color: #34D399; }
-  .quiz-option.wrong { border-color: #EF4444; background: rgba(239,68,68,0.12); color: #F87171; }
-
-  .quiz-feedback {
-    margin-top: 20px; padding: 14px 18px; border-radius: 10px;
-    font-size: 14px; line-height: 1.6; display: none;
-  }
-  .quiz-feedback.correct { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: #34D399; }
-  .quiz-feedback.wrong { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #F87171; }
-  .quiz-feedback.show { display: block; }
-
-  .quiz-actions { display: flex; justify-content: flex-end; margin-top: 24px; }
-
-  /* ─── MOBILE TOGGLE ─── */
-  .mobile-menu-btn {
-    display: none;
-    position: fixed; top: 14px; left: 14px; z-index: 200;
-    background: var(--amber); border: none; border-radius: 8px;
-    width: 36px; height: 36px; cursor: pointer;
-    font-size: 18px; color: #0B0B0B;
-    align-items: center; justify-content: center;
-  }
-
-  .sidebar-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5); z-index: 99;
-  }
-
-  /* ─── SCROLLBAR ─── */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(141,164,194,0.2); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(141,164,194,0.4); }
-
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 900px) {
-    :root { --sidebar-w: 260px; }
-    #sidebar { transform: translateX(-100%); }
-    #sidebar.open { transform: translateX(0); }
-    .sidebar-overlay.open { display: block; }
-    #main { margin-left: 0; }
-    .mobile-menu-btn { display: flex; }
-    #hero { grid-template-columns: 1fr; padding-top: 80px; }
-    .arch-diagram { width: 260px; height: 260px; }
-    .notes-layout { grid-template-columns: 1fr; }
-    .notes-sidebar { max-height: 200px; }
-    .notes-list { max-height: 130px; }
-  }
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
+
+/* ── NAVBAR ── */
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5%; height: 70px;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  position: sticky; top: 0; z-index: 100;
+}
+.logo {
+  font-size: 22px; font-weight: 800; color: #6366f1;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-links { display: flex; list-style: none; gap: 28px; }
+.nav-links a { text-decoration: none; color: #475569; font-size: 14px; font-weight: 500; transition: color .2s; }
+.nav-links a:hover { color: #6366f1; }
+.nav-buttons { display: flex; gap: 10px; }
+.nav-buttons .login {
+  padding: 8px 20px; border-radius: 8px; border: 1.5px solid #6366f1;
+  background: transparent; color: #6366f1; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .2s;
+}
+.nav-buttons .login:hover { background: #6366f1; color: #fff; }
+.nav-buttons .signup {
+  padding: 8px 20px; border-radius: 8px; border: none;
+  background: #6366f1; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .2s;
+}
+.nav-buttons .signup:hover { background: #4f46e5; }
+.hamburger { display: none; font-size: 22px; cursor: pointer; color: #475569; background: none; border: none; }
+
+/* ── HERO ── */
+header { background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%); }
+.hero {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 80px 5% 80px; gap: 40px; flex-wrap: wrap;
+}
+.hero-text { flex: 1; min-width: 300px; }
+.tag {
+  display: inline-block;
+  background: #ede9fe; color: #6d28d9;
+  padding: 6px 14px; border-radius: 99px;
+  font-size: 13px; font-weight: 600; margin-bottom: 20px;
+}
+.hero-text h1 {
+  font-size: clamp(32px, 4vw, 54px); font-weight: 800;
+  color: #0f172a; line-height: 1.15; margin-bottom: 18px;
+}
+.hero-text p { font-size: 16px; color: #475569; max-width: 500px; margin-bottom: 28px; }
+.search-box {
+  display: flex; gap: 0; max-width: 520px;
+  background: #fff; border: 1.5px solid #e2e8f0;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.08);
+  margin-bottom: 22px;
+}
+.search-box input {
+  flex: 1; padding: 14px 18px; border: none; outline: none;
+  font-size: 14px; font-family: 'Inter', sans-serif; color: #0f172a;
+}
+.search-box button {
+  padding: 12px 22px; background: #6366f1; color: #fff; border: none;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; transition: background .2s;
+}
+.search-box button:hover { background: #4f46e5; }
+.hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-buttons .primary {
+  padding: 13px 28px; background: #6366f1; color: #fff;
+  border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.hero-buttons .primary:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.35); }
+.hero-buttons .secondary {
+  padding: 13px 28px; background: transparent; color: #6366f1;
+  border: 2px solid #6366f1; border-radius: 10px; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.hero-buttons .secondary:hover { background: #f0f4ff; }
+.hero-image { flex: 1; min-width: 260px; display: flex; justify-content: center; }
+.hero-image img { width: 100%; max-width: 480px; border-radius: 20px; box-shadow: 0 20px 60px rgba(99,102,241,0.2); }
+
+/* ── STATS BANNER ── */
+.stats { background: #6366f1; padding: 36px 5%; }
+.stats-grid { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 24px; }
+.stat { text-align: center; }
+.stat .num { font-size: 36px; font-weight: 800; color: #fff; }
+.stat .lbl { font-size: 14px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+
+/* ── CATEGORIES ── */
+.categories { padding: 72px 5%; }
+.categories h2, .section-title h2, .featured h2, .newsletter h2 {
+  font-size: 32px; font-weight: 800; color: #0f172a; margin-bottom: 36px; text-align: center;
+}
+.category-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 20px;
+}
+.category-card {
+  background: #fff; border: 1.5px solid #e2e8f0; border-radius: 14px;
+  padding: 28px 20px; text-align: center; cursor: pointer;
+  transition: all .22s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.category-card:hover { border-color: #6366f1; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(99,102,241,0.15); }
+.category-card i { font-size: 32px; color: #6366f1; margin-bottom: 14px; display: block; }
+.category-card h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+.category-card p { font-size: 13px; color: #64748b; }
+
+/* ── BOOKS GRID ── */
+.popular { padding: 72px 5%; background: #f8fafc; }
+.section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; flex-wrap: wrap; gap: 12px; }
+.section-title a { color: #6366f1; font-weight: 600; font-size: 14px; text-decoration: none; }
+.section-title a:hover { text-decoration: underline; }
+.books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; }
+.book-card {
+  background: #fff; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  transition: all .22s; cursor: pointer;
+}
+.book-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(99,102,241,0.15); }
+.book-card img { width: 100%; height: 180px; object-fit: cover; }
+.book-content { padding: 16px; }
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 99px;
+  background: #ede9fe; color: #6d28d9; font-size: 11px; font-weight: 600;
+  margin-bottom: 10px;
+}
+.book-content h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #0f172a; }
+.book-content p { font-size: 13px; color: #64748b; margin-bottom: 10px; }
+.book-info { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 14px; }
+.book-content button {
+  width: 100%; padding: 10px; background: #6366f1; color: #fff;
+  border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background .2s;
+}
+.book-content button:hover { background: #4f46e5; }
+
+/* ── FEATURED SECTION ── */
+.featured { padding: 72px 5%; }
+.featured-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+.featured-card {
+  display: flex; gap: 16px; background: #fff;
+  border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 20px;
+  transition: all .22s;
+}
+.featured-card:hover { border-color: #6366f1; box-shadow: 0 8px 24px rgba(99,102,241,0.12); }
+.featured-card img { width: 70px; height: 90px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+.featured-info { flex: 1; }
+.featured-info h4 { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+.featured-info .author { font-size: 12px; color: #64748b; margin-bottom: 8px; }
+.featured-info .stars { color: #f59e0b; font-size: 12px; }
+.featured-info .desc { font-size: 12px; color: #64748b; margin-top: 6px; line-height: 1.5; }
+.featured-info .dl-link { display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 600; color: #6366f1; text-decoration: none; }
+.featured-info .dl-link:hover { text-decoration: underline; }
+
+/* ── NEWSLETTER ── */
+.newsletter {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  padding: 72px 5%; text-align: center;
+}
+.newsletter h2 { color: #fff; }
+.newsletter p { color: rgba(255,255,255,0.8); font-size: 15px; margin-bottom: 28px; }
+.newsletter-form { display: flex; gap: 0; max-width: 480px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.newsletter-form input { flex: 1; padding: 14px 18px; border: none; outline: none; font-size: 14px; font-family: 'Inter', sans-serif; }
+.newsletter-form button { padding: 14px 24px; background: #0f172a; color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s; }
+.newsletter-form button:hover { background: #1e293b; }
+
+/* ── FOOTER ── */
+footer {
+  background: #0f172a; color: #94a3b8;
+  padding: 60px 5% 28px;
+}
+.footer-grid { display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 40px; margin-bottom: 40px; flex-wrap: wrap; }
+.footer-brand .logo { font-size: 20px; margin-bottom: 14px; }
+.footer-brand p { font-size: 13px; line-height: 1.7; max-width: 260px; }
+.footer-col h5 { font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 14px; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.footer-col ul li a { color: #94a3b8; text-decoration: none; font-size: 13px; transition: color .2s; }
+.footer-col ul li a:hover { color: #a5b4fc; }
+.footer-bottom { border-top: 1px solid #1e293b; padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13px; }
+.social-links { display: flex; gap: 12px; }
+.social-links a { color: #64748b; font-size: 18px; transition: color .2s; }
+.social-links a:hover { color: #a5b4fc; }
+
+/* ── MODAL ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 20px; padding: 36px; width: 90%; max-width: 420px; position: relative; }
+.modal h3 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.modal p { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+.modal .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
+.modal-form { display: flex; flex-direction: column; gap: 14px; }
+.modal-form input {
+  padding: 13px 16px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+  font-size: 14px; outline: none; font-family: 'Inter', sans-serif; transition: border-color .2s;
+}
+.modal-form input:focus { border-color: #6366f1; }
+.modal-form button {
+  padding: 13px; background: #6366f1; color: #fff; border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: background .2s;
+}
+.modal-form button:hover { background: #4f46e5; }
+.modal-footer { text-align: center; font-size: 13px; color: #64748b; margin-top: 16px; }
+.modal-footer a { color: #6366f1; font-weight: 600; cursor: pointer; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 28px; right: 28px; z-index: 300;
+  background: #1e293b; color: #fff; padding: 14px 20px;
+  border-radius: 10px; font-size: 14px; font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  transform: translateY(80px); opacity: 0; transition: all .3s;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast .toast-icon { font-size: 18px; }
+
+/* ── SEARCH RESULTS ── */
+#search-results { padding: 60px 5%; display: none; }
+#search-results h2 { font-size: 24px; font-weight: 800; margin-bottom: 28px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .nav-links, .nav-buttons { display: none; }
+  .hamburger { display: block; }
+  .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 70px; left: 0; right: 0; background: #fff; padding: 20px 5%; gap: 16px; border-bottom: 1px solid #e2e8f0; z-index: 99; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 500px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .hero-image { display: none; }
+}
 </style>
 </head>
 <body>
 
-<button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
-<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
-
-<!-- SIDEBAR -->
-<nav id="sidebar">
-  <div class="sidebar-logo">
-    <div class="book-icon">📐</div>
-    <h2>Clean Architecture</h2>
-    <p>Robert C. Martin · 2017</p>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo"><i class="fa-solid fa-book-open"></i> BookNest</div>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#" onclick="scrollTo('hero-section')">Home</a></li>
+    <li><a href="#" onclick="showSection('categories-section')">Categories</a></li>
+    <li><a href="#" onclick="showSection('popular-section')">Popular</a></li>
+    <li><a href="#" onclick="showSection('featured-section')">Featured</a></li>
+    <li><a href="#" onclick="openModal('contact-modal')">Contact</a></li>
+  </ul>
+  <div class="nav-buttons">
+    <button class="login" onclick="openModal('login-modal')">Login</button>
+    <button class="signup" onclick="openModal('signup-modal')">Sign Up</button>
   </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-section-label">Navigation</div>
-    <a class="nav-item active" data-tab="home" onclick="switchTab('home')">
-      <span class="icon">🏠</span> Overview
-    </a>
-    <a class="nav-item" data-tab="chapters" onclick="switchTab('chapters')">
-      <span class="icon">📑</span> Chapters
-    </a>
-    <a class="nav-item" data-tab="pdf" onclick="switchTab('pdf')">
-      <span class="icon">📄</span> Read PDF
-    </a>
-    <a class="nav-item" data-tab="concepts" onclick="switchTab('concepts')">
-      <span class="icon">💡</span> Key Concepts
-    </a>
-    <a class="nav-item" data-tab="notes" onclick="switchTab('notes')">
-      <span class="icon">📝</span> My Notes
-    </a>
-    <a class="nav-item" data-tab="quiz" onclick="switchTab('quiz')">
-      <span class="icon">🧠</span> Quiz
-    </a>
-  </div>
-
-  <div class="sidebar-bottom">
-    <div class="progress-label">
-      <span>Reading Progress</span>
-      <span id="progress-pct">0%</span>
-    </div>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progress-fill"></div>
-    </div>
-  </div>
+  <button class="hamburger" onclick="toggleNav()"><i class="fa-solid fa-bars"></i></button>
 </nav>
 
-<!-- MAIN -->
-<main id="main">
-
-  <!-- TOPBAR -->
-  <div id="topbar">
-    <div class="topbar-tabs">
-      <button class="tab-btn active" data-tab="home" onclick="switchTab('home')">Overview</button>
-      <button class="tab-btn" data-tab="chapters" onclick="switchTab('chapters')">Chapters</button>
-      <button class="tab-btn" data-tab="pdf" onclick="switchTab('pdf')">PDF</button>
-      <button class="tab-btn" data-tab="concepts" onclick="switchTab('concepts')">Concepts</button>
-      <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">Notes</button>
-      <button class="tab-btn" data-tab="quiz" onclick="switchTab('quiz')">Quiz</button>
+<!-- HERO -->
+<header>
+  <section class="hero" id="hero-section">
+    <div class="hero-text">
+      <span class="tag">📚 World's Largest Free Library</span>
+      <h1>Discover Thousands of Amazing E-Books</h1>
+      <p>Read programming books, novels, business guides, AI resources and much more — all in one place, completely free.</p>
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search books, authors or categories..." onkeydown="if(event.key==='Enter') doSearch()">
+        <button onclick="doSearch()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+      </div>
+      <div class="hero-buttons">
+        <button class="primary" onclick="document.getElementById('popular-section').scrollIntoView({behavior:'smooth'})">Browse Books</button>
+        <button class="secondary" onclick="document.getElementById('categories-section').scrollIntoView({behavior:'smooth'})">Explore Categories</button>
+      </div>
     </div>
-    <div class="topbar-search">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="global-search" placeholder="Search concepts, chapters…" oninput="handleSearch(this.value)">
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=700" alt="Books">
+    </div>
+  </section>
+</header>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-grid">
+    <div class="stat"><div class="num" data-target="10000">0</div><div class="lbl">Free eBooks</div></div>
+    <div class="stat"><div class="num" data-target="500000">0</div><div class="lbl">Happy Readers</div></div>
+    <div class="stat"><div class="num" data-target="50">0</div><div class="lbl">Categories</div></div>
+    <div class="stat"><div class="num" data-target="99">0</div><div class="lbl">% Free Forever</div></div>
+  </div>
+</div>
+
+<!-- SEARCH RESULTS -->
+<section id="search-results">
+  <h2 id="search-results-title">Search Results</h2>
+  <div class="books-grid" id="search-results-grid"></div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="categories" id="categories-section">
+  <h2>Browse Categories</h2>
+  <div class="category-grid" id="category-grid">
+    <div class="category-card" onclick="filterByCategory('Programming')"><i class="fa-solid fa-code"></i><h3>Programming</h3><p>500+ Books</p></div>
+    <div class="category-card" onclick="filterByCategory('AI')"><i class="fa-solid fa-brain"></i><h3>Artificial Intelligence</h3><p>220 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('Cloud')"><i class="fa-solid fa-cloud"></i><h3>Cloud Computing</h3><p>160 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('DevOps')"><i class="fa-solid fa-server"></i><h3>DevOps</h3><p>130 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('Python')"><i class="fa-brands fa-python"></i><h3>Python</h3><p>280 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('Java')"><i class="fa-brands fa-java"></i><h3>Java</h3><p>300 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('Business')"><i class="fa-solid fa-briefcase"></i><h3>Business</h3><p>180 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('Security')"><i class="fa-solid fa-shield-halved"></i><h3>Cybersecurity</h3><p>110 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('Design')"><i class="fa-solid fa-palette"></i><h3>Design</h3><p>95 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('Database')"><i class="fa-solid fa-database"></i><h3>Databases</h3><p>140 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('Mobile')"><i class="fa-solid fa-mobile-screen"></i><h3>Mobile Dev</h3><p>165 Books</p></div>
+    <div class="category-card" onclick="filterByCategory('Math')"><i class="fa-solid fa-calculator"></i><h3>Mathematics</h3><p>200 Books</p></div>
+  </div>
+</section>
+
+<!-- POPULAR BOOKS -->
+<section class="popular" id="popular-section">
+  <div class="section-title">
+    <h2>Popular Books</h2>
+    <a href="#">View All →</a>
+  </div>
+  <div class="books-grid" id="books-grid"></div>
+</section>
+
+<!-- FEATURED -->
+<section class="featured" id="featured-section">
+  <h2>Featured Picks</h2>
+  <div class="featured-grid" id="featured-grid"></div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter">
+  <h2>Stay Updated 📬</h2>
+  <p>Get notified when new books are added. No spam, ever.</p>
+  <div class="newsletter-form">
+    <input type="email" id="newsletter-email" placeholder="Enter your email address…">
+    <button onclick="subscribeNewsletter()">Subscribe</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo"><i class="fa-solid fa-book-open"></i> BookNest</div>
+      <p>Your free digital library for programming, technology, business, and more. Open access for all learners.</p>
+      <div class="social-links" style="margin-top:16px;">
+        <a href="https://github.com/CosmicViraj/eBook-Collection" target="_blank"><i class="fa-brands fa-github"></i></a>
+        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="#"><i class="fa-brands fa-discord"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Library</h5>
+      <ul>
+        <li><a href="#">Browse Books</a></li>
+        <li><a href="#">New Arrivals</a></li>
+        <li><a href="#">Most Downloaded</a></li>
+        <li><a href="#">Staff Picks</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Categories</h5>
+      <ul>
+        <li><a href="#">Programming</a></li>
+        <li><a href="#">Artificial Intelligence</a></li>
+        <li><a href="#">Cybersecurity</a></li>
+        <li><a href="#">Business</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="https://github.com/CosmicViraj/eBook-Collection" target="_blank">GitHub Repo</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+      </ul>
     </div>
   </div>
+  <div class="footer-bottom">
+    <span>© 2025 BookNest by CosmicViraj. All rights reserved.</span>
+    <span>Made with ❤️ for learners worldwide</span>
+  </div>
+</footer>
 
-  <!-- HOME -->
-  <section id="section-home" class="section active">
-    <div id="hero">
-      <div class="hero-text">
-        <div class="eyebrow">// robert c. martin · uncle bob</div>
-        <h1>Build Software<br>That <span>Lasts.</span></h1>
-        <p class="subtitle">
-          Clean Architecture teaches you the timeless principles behind building software systems that are maintainable, testable, and independent of frameworks, databases, and UI.
-        </p>
-        <div class="hero-actions">
-          <button class="btn-primary" onclick="switchTab('pdf')">📖 Read Now</button>
-          <button class="btn-ghost" onclick="switchTab('chapters')">📑 Browse Chapters</button>
-        </div>
-        <div class="hero-meta">
-          <div class="meta-item"><div class="num">34</div><div class="lbl">Chapters</div></div>
-          <div class="meta-item"><div class="num">432</div><div class="lbl">Pages</div></div>
-          <div class="meta-item"><div class="num">5</div><div class="lbl">Parts</div></div>
-          <div class="meta-item"><div class="num">4.5★</div><div class="lbl">Rating</div></div>
-        </div>
-      </div>
-      <div class="arch-diagram">
-        <svg viewBox="0 0 380 380" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#F5A623" stop-opacity="0.15"/>
-              <stop offset="100%" stop-color="#F5A623" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-
-          <!-- Glow -->
-          <circle cx="190" cy="190" r="190" fill="url(#glow)"/>
-
-          <!-- Ring 4 - Frameworks & Drivers -->
-          <circle class="ring" cx="190" cy="190" r="175" fill="#1A3A6B" stroke="#2563EB" stroke-width="1"/>
-          <text class="ring-label" x="190" y="35" text-anchor="middle" fill="#60A5FA">FRAMEWORKS &amp; DRIVERS</text>
-          <text class="ring-label" x="190" y="50" text-anchor="middle" fill="#60A5FA">Web · DB · UI · Devices</text>
-
-          <!-- Ring 3 - Interface Adapters -->
-          <circle class="ring" cx="190" cy="190" r="135" fill="#1C2B45" stroke="#10B981" stroke-width="1"/>
-          <text class="ring-label" x="190" y="75" text-anchor="middle" fill="#34D399">INTERFACE ADAPTERS</text>
-          <text class="ring-label" x="190" y="89" text-anchor="middle" fill="#34D399">Controllers · Presenters · Gateways</text>
-
-          <!-- Ring 2 - Application Business Rules -->
-          <circle class="ring" cx="190" cy="190" r="95" fill="#162035" stroke="#F5A623" stroke-width="1"/>
-          <text class="ring-label" x="190" y="117" text-anchor="middle" fill="#FFC85E">APPLICATION RULES</text>
-          <text class="ring-label" x="190" y="130" text-anchor="middle" fill="#FFC85E">Use Cases</text>
-
-          <!-- Ring 1 - Enterprise Business Rules -->
-          <circle class="ring" cx="190" cy="190" r="55" fill="#0D1520" stroke="#C084FC" stroke-width="1.5"/>
-          <text class="ring-label" x="190" y="178" text-anchor="middle" fill="#C084FC" font-size="11">ENTITIES</text>
-          <text class="ring-label" x="190" y="193" text-anchor="middle" fill="#C084FC" font-size="9">Enterprise</text>
-          <text class="ring-label" x="190" y="205" text-anchor="middle" fill="#C084FC" font-size="9">Business Rules</text>
-
-          <!-- Dependency arrows (pointing inward) -->
-          <defs>
-            <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="2" orient="auto">
-              <polygon points="0 0, 6 2, 0 4" fill="#F5A623" opacity="0.7"/>
-            </marker>
-          </defs>
-          <line x1="190" y1="15" x2="190" y2="250" stroke="#F5A623" stroke-width="1" opacity="0.15" stroke-dasharray="4 4"/>
-          <text x="320" y="280" fill="#F5A623" font-size="10" font-family="JetBrains Mono" opacity="0.7">← Dependency</text>
-          <text x="320" y="293" fill="#F5A623" font-size="10" font-family="JetBrains Mono" opacity="0.7">   Rule</text>
-        </svg>
-      </div>
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="login-modal" onclick="closeModalOutside(event,'login-modal')">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('login-modal')">✕</button>
+    <h3>Welcome Back 👋</h3>
+    <p>Sign in to your BookNest account</p>
+    <div class="modal-form">
+      <input type="email" placeholder="Email address">
+      <input type="password" placeholder="Password">
+      <button onclick="toast('Logged in successfully! 🎉'); closeModal('login-modal')">Login</button>
     </div>
+    <div class="modal-footer">Don't have an account? <a onclick="closeModal('login-modal'); openModal('signup-modal')">Sign up</a></div>
+  </div>
+</div>
 
-    <!-- Features Cards -->
-    <div id="overview" style="padding-top: 0;">
-      <div class="section-header">
-        <div class="eyebrow">// what you'll learn</div>
-        <h2>Core Themes</h2>
-        <p>Five interconnected ideas that define the clean architecture philosophy.</p>
-      </div>
-      <div class="cards-grid">
-        <div class="card" onclick="switchTab('concepts')">
-          <div class="card-icon" style="background:rgba(37,99,235,0.15);">🧱</div>
-          <h3>SOLID Principles</h3>
-          <p>The five principles that guide object-oriented design: Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, Dependency Inversion.</p>
-          <span class="tag">Part II</span>
-        </div>
-        <div class="card" onclick="switchTab('concepts')">
-          <div class="card-icon" style="background:rgba(16,185,129,0.12);">🔗</div>
-          <h3>Component Principles</h3>
-          <p>How to partition the system into deployable units and manage the dependencies between those units for maximum stability and reusability.</p>
-          <span class="tag">Part III</span>
-        </div>
-        <div class="card" onclick="switchTab('concepts')">
-          <div class="card-icon" style="background:rgba(245,166,35,0.12);">🏛️</div>
-          <h3>Architecture Patterns</h3>
-          <p>Screaming Architecture, Clean Architecture, Humble Objects, and the separation of concerns that make systems testable and maintainable.</p>
-          <span class="tag">Part V</span>
-        </div>
-        <div class="card" onclick="switchTab('concepts')">
-          <div class="card-icon" style="background:rgba(168,85,247,0.12);">🧪</div>
-          <h3>Testability</h3>
-          <p>Designing systems where the business logic can be tested without the UI, the database, or any other external element.</p>
-          <span class="tag">Ch. 28</span>
-        </div>
-        <div class="card" onclick="switchTab('concepts')">
-          <div class="card-icon" style="background:rgba(239,68,68,0.1);">📦</div>
-          <h3>Dependency Rule</h3>
-          <p>The single most important rule: source code dependencies must point only inward, toward higher-level policies.</p>
-          <span class="tag">Ch. 22</span>
-        </div>
-        <div class="card" onclick="switchTab('quiz')">
-          <div class="card-icon" style="background:rgba(245,166,35,0.12);">🎯</div>
-          <h3>Test Your Knowledge</h3>
-          <p>Reinforce what you've learned with an interactive quiz covering key concepts from every part of the book.</p>
-          <span class="tag">Quiz →</span>
-        </div>
-      </div>
+<!-- SIGNUP MODAL -->
+<div class="modal-overlay" id="signup-modal" onclick="closeModalOutside(event,'signup-modal')">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('signup-modal')">✕</button>
+    <h3>Create Account 🚀</h3>
+    <p>Join thousands of readers on BookNest</p>
+    <div class="modal-form">
+      <input type="text" placeholder="Full name">
+      <input type="email" placeholder="Email address">
+      <input type="password" placeholder="Create password">
+      <button onclick="toast('Account created! Welcome to BookNest 🎉'); closeModal('signup-modal')">Sign Up Free</button>
     </div>
-  </section>
+    <div class="modal-footer">Already have an account? <a onclick="closeModal('signup-modal'); openModal('login-modal')">Login</a></div>
+  </div>
+</div>
 
-  <!-- CHAPTERS -->
-  <section id="section-chapters" class="section">
-    <div id="chapters">
-      <div class="section-header">
-        <div class="eyebrow">// 34 chapters · 5 parts</div>
-        <h2>Table of Contents</h2>
-        <p>All chapters organized by part. Click any chapter to jump to it in the PDF reader.</p>
-      </div>
-      <div class="chapters-list" id="chapters-list"></div>
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="contact-modal" onclick="closeModalOutside(event,'contact-modal')">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('contact-modal')">✕</button>
+    <h3>Get In Touch 📬</h3>
+    <p>Questions, suggestions, or book requests?</p>
+    <div class="modal-form">
+      <input type="text" placeholder="Your name">
+      <input type="email" placeholder="Your email">
+      <input type="text" placeholder="Subject">
+      <input type="text" placeholder="Your message…">
+      <button onclick="toast('Message sent! We\'ll get back to you soon.'); closeModal('contact-modal')">Send Message</button>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- PDF -->
-  <section id="section-pdf" class="section">
-    <div id="pdf-view">
-      <div class="section-header">
-        <div class="eyebrow">// read · annotate · search</div>
-        <h2>PDF Reader</h2>
-      </div>
-      <div class="pdf-toolbar">
-        <div class="tool-group">
-          <button class="tool-btn" onclick="pdfPrev()">◀ Prev</button>
-          <button class="tool-btn" onclick="pdfNext()">Next ▶</button>
-        </div>
-        <div class="pdf-page-input">
-          Page <input type="number" id="page-input" value="1" min="1" onchange="goToPage(this.value)"> of <span id="total-pages">—</span>
-        </div>
-        <div class="tool-group">
-          <button class="tool-btn" id="btn-search-pdf" onclick="togglePdfSearch()">🔍 Find</button>
-          <button class="tool-btn" onclick="downloadPdf()">⬇ Download</button>
-          <button class="tool-btn" onclick="fullscreenPdf()">⛶ Fullscreen</button>
-        </div>
-        <div class="zoom-input">
-          Zoom
-          <select class="zoom-select" id="zoom-select" onchange="setZoom(this.value)">
-            <option value="75">75%</option>
-            <option value="100" selected>100%</option>
-            <option value="125">125%</option>
-            <option value="150">150%</option>
-            <option value="page-width">Page Width</option>
-          </select>
-        </div>
-      </div>
-      <div class="pdf-container">
-        <div class="pdf-embed-wrap" id="pdf-embed-wrap">
-          <div class="pdf-placeholder" id="pdf-placeholder">
-            <div class="big-icon">📄</div>
-            <h3>Load Your PDF</h3>
-            <p>Upload the Clean Architecture PDF from your local files to read it directly in the browser. All processing stays on your device.</p>
-            <label class="upload-area" for="pdf-file-input">
-              <div style="font-size:32px;margin-bottom:10px;">📂</div>
-              <div style="font-size:14px;color:var(--white);font-weight:600;">Click to upload PDF</div>
-              <div style="font-size:12px;color:var(--slate);margin-top:6px;">or drag and drop</div>
-              <input type="file" id="pdf-file-input" accept=".pdf" onchange="loadPdfFile(event)">
-            </label>
-            <div style="margin-top:16px;font-size:12px;color:var(--slate);">
-              You can also paste a URL below:
-            </div>
-            <div style="display:flex;gap:8px;margin-top:8px;width:100%;max-width:500px;">
-              <input type="text" id="pdf-url-input" placeholder="https://… .pdf" style="flex:1;padding:9px 14px;background:rgba(141,164,194,0.08);border:1px solid rgba(141,164,194,0.2);border-radius:8px;color:var(--white);font-size:13px;outline:none;font-family:'Inter',sans-serif;">
-              <button class="btn-primary" style="padding:9px 18px;font-size:13px;" onclick="loadPdfUrl()">Load</button>
-            </div>
-          </div>
-          <iframe id="pdf-iframe" style="display:none;" title="Clean Architecture PDF"></iframe>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONCEPTS -->
-  <section id="section-concepts" class="section">
-    <div id="concepts">
-      <div class="section-header">
-        <div class="eyebrow">// principles · patterns · rules</div>
-        <h2>Key Concepts</h2>
-        <p>The fundamental ideas from Clean Architecture, with examples and explanations.</p>
-      </div>
-      <div class="concepts-grid" id="concepts-grid"></div>
-    </div>
-  </section>
-
-  <!-- NOTES -->
-  <section id="section-notes" class="section">
-    <div id="notes">
-      <div class="section-header">
-        <div class="eyebrow">// your annotations</div>
-        <h2>My Notes</h2>
-        <p>Capture insights as you read. Notes are saved to your browser locally.</p>
-      </div>
-      <div class="notes-layout">
-        <div class="notes-sidebar">
-          <div class="notes-sidebar-header">
-            <h3>Notes (<span id="note-count">0</span>)</h3>
-            <button class="add-note-btn" onclick="addNote()">+</button>
-          </div>
-          <div class="notes-list" id="notes-list"></div>
-        </div>
-        <div class="note-editor">
-          <div class="note-editor-header">
-            <input class="note-title-input" id="note-title" placeholder="Note title…" oninput="saveCurrentNote()">
-            <span class="note-chapter-tag" id="note-chapter-tag">Chapter —</span>
-            <select id="note-chapter-sel" style="background:transparent;border:none;color:var(--slate);font-size:12px;outline:none;cursor:pointer;" onchange="updateNoteChapter(this.value)">
-              <option value="">Chapter…</option>
-              <option>Ch. 1</option><option>Ch. 2</option><option>Ch. 3</option>
-              <option>Part I</option><option>Part II (SOLID)</option><option>Part III</option>
-              <option>Part IV</option><option>Part V</option>
-            </select>
-          </div>
-          <textarea class="note-textarea" id="note-body" placeholder="Start writing your note… Use markdown-style formatting for headings (# Title), bold (**text**), or lists (- item)." oninput="saveCurrentNote()"></textarea>
-          <div class="note-footer">
-            <button class="btn-ghost" style="padding:8px 16px;font-size:13px;" onclick="deleteCurrentNote()">🗑 Delete</button>
-            <button class="btn-primary" style="padding:8px 16px;font-size:13px;" onclick="exportNotes()">⬇ Export Notes</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- QUIZ -->
-  <section id="section-quiz" class="section">
-    <div id="quiz">
-      <div class="section-header">
-        <div class="eyebrow">// test your understanding</div>
-        <h2>Knowledge Quiz</h2>
-        <p>10 questions covering SOLID, component principles, and architecture patterns.</p>
-      </div>
-      <div class="quiz-card">
-        <div class="quiz-meta">
-          <span class="quiz-progress-text" id="quiz-progress-text">Question 1 of 10</span>
-          <span class="quiz-score-badge">Score: <span id="quiz-score">0</span>/10</span>
-        </div>
-        <div class="quiz-q-progress"><div class="quiz-q-fill" id="quiz-q-fill" style="width:10%"></div></div>
-        <div class="quiz-question" id="quiz-question"></div>
-        <div class="quiz-options" id="quiz-options"></div>
-        <div class="quiz-feedback" id="quiz-feedback"></div>
-        <div class="quiz-actions">
-          <button class="btn-primary" id="quiz-next-btn" onclick="nextQuestion()" style="display:none;">Next Question →</button>
-          <button class="btn-ghost" id="quiz-restart-btn" onclick="restartQuiz()" style="display:none;">🔄 Restart Quiz</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-</main>
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✅</span>
+  <span id="toast-msg">Done!</span>
+</div>
 
 <script>
-// ── DATA ──
-const CHAPTERS = [
-  { num:'Foreword', title:'Foreword', desc:'By Kevlin Henney', part:'' },
-  { num:'Preface', title:'Preface', desc:'What this book is about and why it matters', part:'' },
-  { num:'1', title:'What Is Design and Architecture?', desc:'The goal of software architecture and the difference between design and architecture.', part:'Part I — Introduction' },
-  { num:'2', title:'A Tale of Two Values', desc:'Behavior vs structure — why architecture matters more than you think.', part:'Part I — Introduction' },
-  { num:'3', title:'Paradigm Overview', desc:'Structured, Object-Oriented, and Functional programming paradigms.', part:'Part II — Programming Paradigms' },
-  { num:'4', title:'Structured Programming', desc:'Proof of correctness and functional decomposition.', part:'Part II — Programming Paradigms' },
-  { num:'5', title:'Object-Oriented Programming', desc:'Encapsulation, inheritance, polymorphism, and their architectural implications.', part:'Part II — Programming Paradigms' },
-  { num:'6', title:'Functional Programming', desc:'Immutability and the architecture of functional systems.', part:'Part II — Programming Paradigms' },
-  { num:'7', title:'SRP: The Single Responsibility Principle', desc:'A module should be responsible to one, and only one, actor.', part:'Part III — Design Principles' },
-  { num:'8', title:'OCP: The Open-Closed Principle', desc:'A software artifact should be open for extension but closed for modification.', part:'Part III — Design Principles' },
-  { num:'9', title:'LSP: The Liskov Substitution Principle', desc:'Subtypes must be substitutable for their base types.', part:'Part III — Design Principles' },
-  { num:'10', title:'ISP: The Interface Segregation Principle', desc:'Clients should not be forced to depend on methods they do not use.', part:'Part III — Design Principles' },
-  { num:'11', title:'DIP: The Dependency Inversion Principle', desc:'High-level modules should not depend on low-level modules.', part:'Part III — Design Principles' },
-  { num:'12', title:'Components', desc:'The units of deployment — the smallest entities that can be deployed.', part:'Part IV — Component Principles' },
-  { num:'13', title:'Component Cohesion', desc:'REP, CCP, CRP — which classes belong together.', part:'Part IV — Component Principles' },
-  { num:'14', title:'Component Coupling', desc:'ADP, SDP, SAP — managing dependencies between components.', part:'Part IV — Component Principles' },
-  { num:'15', title:'What Is Architecture?', desc:'The word "architecture" and what it really means in software.', part:'Part V — Architecture' },
-  { num:'16', title:'Independence', desc:'Decoupling use cases and layers to achieve independence.', part:'Part V — Architecture' },
-  { num:'17', title:'Boundaries: Drawing Lines', desc:'Which decisions need to be delayed and how to draw boundaries around them.', part:'Part V — Architecture' },
-  { num:'18', title:'Boundary Anatomy', desc:'The structure of the boundaries: monoliths, services, threads.', part:'Part V — Architecture' },
-  { num:'19', title:'Policy and Level', desc:'Higher-level policies change less frequently than lower-level details.', part:'Part V — Architecture' },
-  { num:'20', title:'Business Rules', desc:'Entities, use cases, and the separation of concerns.', part:'Part V — Architecture' },
-  { num:'21', title:'Screaming Architecture', desc:'What does your architecture scream? It should scream use cases.', part:'Part V — Architecture' },
-  { num:'22', title:'The Clean Architecture', desc:'The dependency rule and the concentric circles model.', part:'Part V — Architecture' },
-  { num:'23', title:'Presenters and Humble Objects', desc:'The Humble Object pattern and testable boundaries.', part:'Part V — Architecture' },
-  { num:'24', title:'Partial Boundaries', desc:'When full boundaries are too expensive — skip-the-last-step and facades.', part:'Part V — Architecture' },
-  { num:'25', title:'Layers and Boundaries', desc:'More complex boundary structures and the risks of over-engineering.', part:'Part V — Architecture' },
-  { num:'26', title:'The Main Component', desc:'The lowest-level policy: the dirty secret at the bottom.', part:'Part V — Architecture' },
-  { num:'27', title:'Services: Great and Small', desc:'Microservices and service-oriented architecture myths.', part:'Part V — Architecture' },
-  { num:'28', title:'The Test Boundary', desc:'Tests as part of the system, and designing for testability.', part:'Part V — Architecture' },
-  { num:'29', title:'Clean Embedded Architecture', desc:'Firmware, hardware, and the firmware-hardware boundary.', part:'Part V — Architecture' },
-  { num:'30', title:'The Database Is a Detail', desc:'The database is a low-level detail, not an architectural element.', part:'Part VI — Details' },
-  { num:'31', title:'The Web Is a Detail', desc:'The web is a delivery mechanism, not an architecture.', part:'Part VI — Details' },
-  { num:'32', title:'Frameworks Are Details', desc:'Don't marry your framework — it's a tool, not a lifestyle.', part:'Part VI — Details' },
-  { num:'33', title:'Case Study: Video Sales', desc:'A worked example applying all principles end to end.', part:'Part VI — Details' },
-  { num:'34', title:'The Missing Chapter', desc:'By Simon Brown — how to translate architecture into code.', part:'Appendix' },
+// ── BOOK DATA ──
+const BOOKS = [
+  { title:'Clean Code', author:'Robert C. Martin', category:'Programming', rating:'4.9', downloads:'25k', img:'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400', desc:'A handbook of agile software craftsmanship.', link:'https://github.com/CosmicViraj/eBook-Collection' },
+  { title:'Clean Architecture', author:'Robert C. Martin', category:'Programming', rating:'4.8', downloads:'22k', img:'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400', desc:'A craftsman\'s guide to software structure.', link:'https://github.com/CosmicViraj/eBook-Collection/blob/main/Book%20-%20Clean%20Architecture%20-%20Robert%20Cecil%20Martin.pdf' },
+  { title:'Machine Learning', author:'Andrew Ng', category:'AI', rating:'4.8', downloads:'18k', img:'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400', desc:'Practical machine learning techniques and algorithms.', link:'https://github.com/CosmicViraj/eBook-Collection' },
+  { title:'AWS Guide', author:'Amazon', category:'Cloud', rating:'4.7', downloads:'15k', img:'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400', desc:'Comprehensive guide to Amazon Web Services.', link:'https://github.com/CosmicViraj/eBook-Collection' },
+  { title:'Zero to One', author:'Peter Thiel', category:'Business', rating:'4.8', downloads:'12k', img:'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=400', desc:'Notes on startups and how to build the future.', link:'https://github.com/CosmicViraj/eBook-Collection' },
+  { title:'Think Python', author:'Allen B. Downey', category:'Python', rating:'4.7', downloads:'20k', img:'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400', desc:'How to Think Like a Computer Scientist.', link:'https://github.com/CosmicViraj/eBook-Collection/blob/main/thinkpython.pdf' },
+  { title:'Pro Git', author:'Scott Chacon', category:'Programming', rating:'4.9', downloads:'30k', img:'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=400', desc:'Everything you need to know about Git.', link:'https://github.com/CosmicViraj/eBook-Collection/blob/main/progit-en.1084.pdf' },
+  { title:'Cybersecurity Basics', author:'Rauf Meeuwisse', category:'Security', rating:'4.6', downloads:'10k', img:'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400', desc:'A comprehensive introduction to cybersecurity.', link:'https://github.com/CosmicViraj/eBook-Collection/blob/main/Meeuwisse-Rauf.-CybersecurityforBeginners.pdf' },
+  { title:'Psychology of Money', author:'Morgan Housel', category:'Business', rating:'4.9', downloads:'28k', img:'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=400', desc:'Timeless lessons on wealth, greed, and happiness.', link:'https://github.com/CosmicViraj/eBook-Collection/blob/main/the-psychology-of-money-by-morgan-housel.pdf' },
+  { title:'Git Pocket Guide', author:'Richard Silverman', category:'Programming', rating:'4.5', downloads:'8k', img:'https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=400', desc:'A working introduction to Git.', link:'https://github.com/CosmicViraj/eBook-Collection' },
+  { title:'Deep Learning', author:'Ian Goodfellow', category:'AI', rating:'4.7', downloads:'14k', img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=400', desc:'The definitive textbook on deep learning.', link:'https://github.com/CosmicViraj/eBook-Collection' },
+  { title:'Design Patterns', author:'Gang of Four', category:'Programming', rating:'4.7', downloads:'16k', img:'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400', desc:'Elements of Reusable Object-Oriented Software.', link:'https://github.com/CosmicViraj/eBook-Collection' },
 ];
 
-const PART_COLORS = {
-  '': '',
-  'Part I — Introduction': 'part-1',
-  'Part II — Programming Paradigms': 'part-2',
-  'Part III — Design Principles': 'part-3',
-  'Part IV — Component Principles': 'part-4',
-  'Part V — Architecture': 'part-5',
-  'Part VI — Details': 'part-1',
-  'Appendix': 'part-2',
-};
-
-const CONCEPTS = [
-  { badge:'SRP', badgeClass:'part-1', title:'Single Responsibility Principle', desc:'A module should be responsible to one, and only one, actor. This is often misunderstood as "do one thing" — really it means "one reason to change."', code:`<span class="kw">// Bad: Two actors (Ops & HR) depend on one class</span>\n<span class="cls">class Employee</span> {\n  calculatePay()    <span class="cm">// CFO</span>\n  reportHours()     <span class="cm">// COO</span>\n  save()            <span class="cm">// CTO — too many actors!</span>\n}` },
-  { badge:'OCP', badgeClass:'part-2', title:'Open-Closed Principle', desc:'A software artifact should be open for extension but closed for modification. Achieve this by separating things that change from things that don\'t.', code:`<span class="kw">// Open for extension:</span>\n<span class="cls">abstract class Shape</span> { area() }\n<span class="cls">class Circle extends Shape</span> { area() {...} }\n<span class="cls">class Square extends Shape</span> { area() {...} }\n<span class="cm">// Add new shapes without modifying existing code</span>` },
-  { badge:'LSP', badgeClass:'part-3', title:'Liskov Substitution Principle', desc:'Subtypes must be substitutable for their base types without altering the correctness of the program. Violations leak into higher-level components.', code:`<span class="cm">// Rectangle/Square violates LSP:</span>\n<span class="cls">class Square extends Rectangle</span> {\n  setWidth(w) { <span class="kw">super</span>.setWidth(w); <span class="kw">super</span>.setHeight(w); }\n  <span class="cm">// Breaks caller's expectation of Rectangle</span>\n}` },
-  { badge:'ISP', badgeClass:'part-4', title:'Interface Segregation Principle', desc:'Clients should not be forced to depend on methods they do not use. Avoid "fat" interfaces that include more than any single client needs.', code:`<span class="cm">// Instead of one fat interface:</span>\n<span class="cls">interface Worker</span> { work(); eat(); sleep(); }\n<span class="cm">// Split into focused interfaces:</span>\n<span class="cls">interface Workable</span> { work(); }\n<span class="cls">interface Feedable</span> { eat(); }` },
-  { badge:'DIP', badgeClass:'part-5', title:'Dependency Inversion Principle', desc:'High-level modules must not depend on low-level modules. Both should depend on abstractions. Abstractions should not depend on details.', code:`<span class="cm">// High-level policy depends on abstraction:</span>\n<span class="cls">class OrderService</span> {\n  <span class="kw">constructor</span>(<span class="cls">PaymentGateway</span> gw) {...}\n  <span class="cm">// Not on concrete Stripe/PayPal class</span>\n}` },
-  { badge:'Dependency Rule', badgeClass:'part-1', title:'The Dependency Rule', desc:'Source code dependencies must point only inward, toward higher-level policies. Nothing in an inner circle can know anything about something in an outer circle.', code:`<span class="cm">// ✓ Entities know nothing of Use Cases</span>\n<span class="cm">// ✓ Use Cases know nothing of Controllers</span>\n<span class="cm">// ✓ Controllers know nothing of DB/Web</span>\n<span class="cm">// ✗ NEVER import outer into inner layers</span>` },
-  { badge:'Humble Object', badgeClass:'part-2', title:'Humble Object Pattern', desc:'Split hard-to-test behavior and easy-to-test behavior into two different classes. The Humble Object contains all the hard-to-test behavior stripped down to its essentials.', code:`<span class="cls">class Presenter</span> {\n  present(data) { <span class="cm">/* hard to test */</span> }\n}\n<span class="cls">class ViewModel</span> {\n  format(data) { <span class="cm">/* pure, easy to test */</span> }\n}` },
-  { badge:'Screaming Arch.', badgeClass:'part-3', title:'Screaming Architecture', desc:'The architecture of your system should scream its intent. A healthcare system should scream "healthcare." A bookkeeping system should scream "bookkeeping." Not "Rails" or "Spring."', code:`<span class="cm">// BAD: directory tells you the framework</span>\napp/controllers/ models/ views/\n\n<span class="cm">// GOOD: directory tells you the domain</span>\nsrc/Orders/ Customers/ Payments/` },
-  { badge:'REP · CCP · CRP', badgeClass:'part-4', title:'Component Cohesion Principles', desc:'REP: group reusable things. CCP: group things that change together. CRP: don\'t force users to depend on things they don\'t need. The tension between these three guides component design.', code:`<span class="cm">// REP — Reuse/Release Equivalence</span>\n<span class="cm">// CCP — Common Closure Principle</span>\n<span class="cm">// CRP — Common Reuse Principle</span>\n<span class="cm">// Tension triangle: balance all three</span>` },
-  { badge:'ADP · SDP · SAP', badgeClass:'part-5', title:'Component Coupling Principles', desc:'ADP: no cycles in the dependency graph. SDP: depend in the direction of stability. SAP: stable components should be abstract; unstable components should be concrete.', code:`<span class="cm">// Instability = Fan-out / (Fan-in + Fan-out)</span>\n<span class="cm">// I=0 → maximally stable</span>\n<span class="cm">// I=1 → maximally unstable</span>\n<span class="cm">// Abstractness A + Instability I ≈ 1</span>` },
-];
-
-const QUIZ_QUESTIONS = [
-  { q: 'What does the Single Responsibility Principle really mean?', opts: ['A class should only do one thing', 'A module should be responsible to one, and only one, actor', 'Functions should be short', 'One class per file'], answer: 1, explanation: 'SRP is about actors, not functions. A module that multiple people depend on for different reasons has multiple reasons to change.' },
-  { q: 'The Dependency Rule states that source code dependencies must point…', opts: ['Outward, toward low-level details', 'In any direction as needed', 'Only inward, toward higher-level policies', 'Toward the database'], answer: 2, explanation: 'Inner circles know nothing about outer circles. This is the heart of Clean Architecture.' },
-  { q: 'Which pattern separates hard-to-test behavior from easy-to-test behavior?', opts: ['Factory Pattern', 'Humble Object Pattern', 'Singleton Pattern', 'Observer Pattern'], answer: 1, explanation: 'The Humble Object pattern strips down the hard-to-test code (like UI rendering) and puts the testable logic in a separate class.' },
-  { q: 'According to Uncle Bob, what should your architecture "scream"?', opts: ['The framework being used', 'The programming language', 'The use cases and intent of the system', 'The database schema'], answer: 2, explanation: '"Screaming Architecture" means the top-level structure reveals what the system does — not what tools it uses.' },
-  { q: 'The Open-Closed Principle says a module should be…', opts: ['Open for modification, closed for extension', 'Open for extension, closed for modification', 'Open source and closed to bugs', 'Open to refactoring at any time'], answer: 1, explanation: 'You add new behavior by adding new code, not by changing existing, working code.' },
-  { q: 'What is the Instability metric (I) for a maximally stable component?', opts: ['I = 1', 'I = 0.5', 'I = 0', 'I = ∞'], answer: 2, explanation: 'I = Fan-out / (Fan-in + Fan-out). A component that nobody depends on (Fan-in = 0) has I = 0, maximum stability.' },
-  { q: 'Which component cohesion principle says "don\'t force users to depend on things they don\'t need"?', opts: ['REP — Reuse/Release Equivalence', 'CCP — Common Closure Principle', 'CRP — Common Reuse Principle', 'ADP — Acyclic Dependencies Principle'], answer: 2, explanation: 'CRP prevents you from creating fat components that bundle unrelated things, forcing clients to depend on code they never use.' },
-  { q: 'The Liskov Substitution Principle is violated when…', opts: ['You use inheritance', 'A subtype cannot be substituted for its base type without breaking behavior', 'You have too many subclasses', 'An interface has more than 5 methods'], answer: 1, explanation: 'Classic example: Square extending Rectangle breaks client expectations because setting width also changes height.' },
-  { q: 'In Clean Architecture, where do Use Cases live?', opts: ['In the outermost ring with Frameworks', 'In the Entities ring', 'In the Application Business Rules ring', 'In the Interface Adapters ring'], answer: 2, explanation: 'Use Cases encode the application-specific business rules. They orchestrate the flow of data to and from Entities.' },
-  { q: '"The database is a detail" means…', opts: ['Databases are unimportant', 'The database choice should be deferred and the core logic should not depend on it', 'You should use a NoSQL database', 'Database queries belong in the UI'], answer: 1, explanation: 'The database is a low-level implementation detail. The business rules should have no knowledge of what database (if any) is used.' },
-];
-
-// ── STATE ──
-let currentTab = 'home';
-let pdfSrc = null;
-let currentPage = 1;
-let totalPages = 1;
-let notes = JSON.parse(localStorage.getItem('ca_notes') || '[]');
-let currentNoteIdx = null;
-let quizIdx = 0, quizScore = 0, quizAnswered = false;
-let readChapters = JSON.parse(localStorage.getItem('ca_read') || '[]');
-
-// ── INIT ──
-function init() {
-  renderChapters();
-  renderConcepts();
-  renderNotes();
-  renderQuiz();
-  updateProgress();
-}
-
-// ── TABS ──
-function switchTab(tab) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('section-' + tab).classList.add('active');
-  document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
-  currentTab = tab;
-  closeSidebar();
-}
-
-// ── SIDEBAR MOBILE ──
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('open');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
-}
-
-// ── CHAPTERS ──
-function renderChapters(filter = '') {
-  const el = document.getElementById('chapters-list');
-  const filtered = CHAPTERS.filter(c =>
-    !filter || c.title.toLowerCase().includes(filter) || c.desc.toLowerCase().includes(filter)
-  );
-  el.innerHTML = filtered.map((c, i) => {
-    const cls = PART_COLORS[c.part] || '';
-    const isRead = readChapters.includes(c.num);
-    return `<div class="chapter-item${isRead ? '' : ''}" onclick="markRead('${c.num}', this)">
-      <div class="chapter-num">${c.num === 'Foreword' || c.num === 'Preface' ? '—' : 'Ch.' + c.num}</div>
-      <div class="chapter-info">
-        <h4>${isRead ? '✅ ' : ''}${c.title}</h4>
-        <p>${c.desc}</p>
+// ── RENDER ──
+function renderBooks(books, gridId) {
+  const grid = document.getElementById(gridId);
+  if (!books.length) { grid.innerHTML = '<p style="color:#64748b;padding:20px;">No books found.</p>'; return; }
+  grid.innerHTML = books.map(b => `
+    <div class="book-card">
+      <img src="${b.img}" alt="${b.title}" onerror="this.src='https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400'">
+      <div class="book-content">
+        <span class="badge">${b.category}</span>
+        <h3>${b.title}</h3>
+        <p>${b.author}</p>
+        <div class="book-info"><span>⭐ ${b.rating}</span><span>${b.downloads} Downloads</span></div>
+        <button onclick="downloadBook('${b.title}', '${b.link}')">⬇ Download Free</button>
       </div>
-      ${c.part ? `<span class="chapter-part ${cls}">${c.part.split(' — ')[0]}</span>` : ''}
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 
-function markRead(num, el) {
-  if (!readChapters.includes(num)) {
-    readChapters.push(num);
-    localStorage.setItem('ca_read', JSON.stringify(readChapters));
-    updateProgress();
-    renderChapters();
-  }
-}
-
-function updateProgress() {
-  const pct = Math.round((readChapters.length / CHAPTERS.length) * 100);
-  document.getElementById('progress-pct').textContent = pct + '%';
-  document.getElementById('progress-fill').style.width = pct + '%';
-}
-
-// ── CONCEPTS ──
-function renderConcepts(filter = '') {
-  const el = document.getElementById('concepts-grid');
-  const filtered = CONCEPTS.filter(c =>
-    !filter || c.title.toLowerCase().includes(filter) || c.desc.toLowerCase().includes(filter)
-  );
-  el.innerHTML = filtered.map(c => `
-    <div class="concept-card">
-      <span class="badge ${c.badgeClass}">${c.badge}</span>
-      <h3>${c.title}</h3>
-      <p>${c.desc}</p>
-      <div class="code-example">${c.code}</div>
+function renderFeatured() {
+  const grid = document.getElementById('featured-grid');
+  const featured = BOOKS.slice(0, 6);
+  grid.innerHTML = featured.map(b => `
+    <div class="featured-card">
+      <img src="${b.img}" alt="${b.title}" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'">
+      <div class="featured-info">
+        <h4>${b.title}</h4>
+        <div class="author">${b.author} · ${b.category}</div>
+        <div class="stars">${'★'.repeat(Math.round(parseFloat(b.rating)))} ${b.rating}</div>
+        <div class="desc">${b.desc}</div>
+        <a class="dl-link" href="${b.link}" target="_blank">Download PDF →</a>
+      </div>
     </div>`).join('');
 }
 
 // ── SEARCH ──
-function handleSearch(val) {
-  const q = val.toLowerCase().trim();
-  if (currentTab === 'chapters') renderChapters(q);
-  else if (currentTab === 'concepts') renderConcepts(q);
+function doSearch() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const resultsSection = document.getElementById('search-results');
+  if (!q) { resultsSection.style.display = 'none'; return; }
+  const found = BOOKS.filter(b =>
+    b.title.toLowerCase().includes(q) ||
+    b.author.toLowerCase().includes(q) ||
+    b.category.toLowerCase().includes(q)
+  );
+  document.getElementById('search-results-title').textContent = `Results for "${q}" (${found.length} found)`;
+  renderBooks(found, 'search-results-grid');
+  resultsSection.style.display = 'block';
+  resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ── PDF ──
-function loadPdfFile(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const url = URL.createObjectURL(file);
-  showPdf(url);
+function filterByCategory(cat) {
+  const found = BOOKS.filter(b => b.category === cat);
+  document.getElementById('search-results-title').textContent = `Category: ${cat} (${found.length} books)`;
+  renderBooks(found, 'search-results-grid');
+  document.getElementById('search-results').style.display = 'block';
+  document.getElementById('search-results').scrollIntoView({ behavior: 'smooth' });
 }
 
-function loadPdfUrl() {
-  const url = document.getElementById('pdf-url-input').value.trim();
-  if (!url) return;
-  showPdf(url + '#toolbar=1&navpanes=1&scrollbar=1');
+// ── DOWNLOAD ──
+function downloadBook(title, link) {
+  toast(`Downloading "${title}"… 📥`);
+  setTimeout(() => window.open(link, '_blank'), 800);
 }
 
-function showPdf(src) {
-  pdfSrc = src;
-  document.getElementById('pdf-placeholder').style.display = 'none';
-  const iframe = document.getElementById('pdf-iframe');
-  iframe.src = src;
-  iframe.style.display = 'block';
+// ── NEWSLETTER ──
+function subscribeNewsletter() {
+  const email = document.getElementById('newsletter-email').value.trim();
+  if (!email || !email.includes('@')) { toast('Please enter a valid email! ⚠️'); return; }
+  toast('Subscribed successfully! 🎉');
+  document.getElementById('newsletter-email').value = '';
 }
 
-function pdfPrev() {
-  if (currentPage > 1) { currentPage--; updatePageInput(); }
-}
-function pdfNext() {
-  currentPage++; updatePageInput();
-}
-function goToPage(p) {
-  currentPage = parseInt(p) || 1;
-  if (pdfSrc) {
-    const iframe = document.getElementById('pdf-iframe');
-    iframe.src = pdfSrc + '#page=' + currentPage;
-  }
-}
-function updatePageInput() {
-  document.getElementById('page-input').value = currentPage;
-  goToPage(currentPage);
-}
-function setZoom(val) { /* handled by native PDF viewer */ }
-function togglePdfSearch() { /* opens browser find */ }
-function downloadPdf() {
-  if (pdfSrc) { const a = document.createElement('a'); a.href = pdfSrc; a.download = 'clean-architecture.pdf'; a.click(); }
-}
-function fullscreenPdf() {
-  const wrap = document.getElementById('pdf-embed-wrap');
-  if (wrap.requestFullscreen) wrap.requestFullscreen();
+// ── MODALS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e, id) { if (e.target.id === id) closeModal(id); }
+
+// ── TOAST ──
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
 }
 
-// ── NOTES ──
-function renderNotes() {
-  const list = document.getElementById('notes-list');
-  document.getElementById('note-count').textContent = notes.length;
-  if (!notes.length) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--slate);">No notes yet.<br>Click + to add one.</div>';
-    return;
-  }
-  list.innerHTML = notes.map((n, i) => `
-    <div class="note-item ${currentNoteIdx === i ? 'active' : ''}" onclick="selectNote(${i})">
-      <h4>${n.title || 'Untitled Note'}</h4>
-      <p>${n.body ? n.body.substring(0, 60) + '…' : 'Empty note'}</p>
-      <div class="note-date">${n.chapter || ''} · ${n.date}</div>
-    </div>`).join('');
+// ── NAV MOBILE ──
+function toggleNav() {
+  document.getElementById('nav-links').classList.toggle('open');
 }
 
-function addNote() {
-  const n = { title: '', body: '', chapter: '', date: new Date().toLocaleDateString() };
-  notes.unshift(n);
-  saveNotes();
-  selectNote(0);
+// ── COUNTER ANIMATION ──
+function animateCounters() {
+  document.querySelectorAll('[data-target]').forEach(el => {
+    const target = +el.dataset.target;
+    const suffix = target >= 1000 ? (target >= 100000 ? 'k+' : 'k+') : '+';
+    const displayTarget = target >= 1000 ? Math.round(target / 1000) : target;
+    let current = 0;
+    const step = Math.max(1, Math.floor(displayTarget / 50));
+    const timer = setInterval(() => {
+      current = Math.min(current + step, displayTarget);
+      el.textContent = current + suffix;
+      if (current >= displayTarget) clearInterval(timer);
+    }, 30);
+  });
 }
 
-function selectNote(i) {
-  currentNoteIdx = i;
-  const n = notes[i];
-  document.getElementById('note-title').value = n.title || '';
-  document.getElementById('note-body').value = n.body || '';
-  document.getElementById('note-chapter-tag').textContent = n.chapter || 'Chapter —';
-  renderNotes();
-}
+// ── INIT ──
+renderBooks(BOOKS, 'books-grid');
+renderFeatured();
 
-function saveCurrentNote() {
-  if (currentNoteIdx === null) return;
-  notes[currentNoteIdx].title = document.getElementById('note-title').value;
-  notes[currentNoteIdx].body = document.getElementById('note-body').value;
-  saveNotes();
-  renderNotes();
-}
-
-function updateNoteChapter(val) {
-  if (currentNoteIdx === null) return;
-  notes[currentNoteIdx].chapter = val;
-  document.getElementById('note-chapter-tag').textContent = val || 'Chapter —';
-  saveNotes();
-  renderNotes();
-}
-
-function deleteCurrentNote() {
-  if (currentNoteIdx === null) return;
-  notes.splice(currentNoteIdx, 1);
-  currentNoteIdx = null;
-  document.getElementById('note-title').value = '';
-  document.getElementById('note-body').value = '';
-  saveNotes();
-  renderNotes();
-}
-
-function saveNotes() {
-  localStorage.setItem('ca_notes', JSON.stringify(notes));
-}
-
-function exportNotes() {
-  const text = notes.map(n => `# ${n.title}\n${n.chapter} | ${n.date}\n\n${n.body}`).join('\n\n---\n\n');
-  const blob = new Blob([text], { type: 'text/plain' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'clean-architecture-notes.txt'; a.click();
-}
-
-// ── QUIZ ──
-function renderQuiz() {
-  const q = QUIZ_QUESTIONS[quizIdx];
-  document.getElementById('quiz-question').textContent = q.q;
-  document.getElementById('quiz-progress-text').textContent = `Question ${quizIdx + 1} of ${QUIZ_QUESTIONS.length}`;
-  document.getElementById('quiz-q-fill').style.width = ((quizIdx + 1) / QUIZ_QUESTIONS.length * 100) + '%';
-  document.getElementById('quiz-score').textContent = quizScore;
-  document.getElementById('quiz-feedback').className = 'quiz-feedback';
-  document.getElementById('quiz-next-btn').style.display = 'none';
-  document.getElementById('quiz-restart-btn').style.display = 'none';
-  quizAnswered = false;
-
-  const optsEl = document.getElementById('quiz-options');
-  optsEl.innerHTML = q.opts.map((o, i) =>
-    `<button class="quiz-option" onclick="answerQuiz(${i})">${o}</button>`
-  ).join('');
-}
-
-function answerQuiz(i) {
-  if (quizAnswered) return;
-  quizAnswered = true;
-  const q = QUIZ_QUESTIONS[quizIdx];
-  const btns = document.querySelectorAll('.quiz-option');
-  btns.forEach(b => b.disabled = true);
-  btns[q.answer].classList.add('correct');
-  const fb = document.getElementById('quiz-feedback');
-
-  if (i === q.answer) {
-    quizScore++;
-    document.getElementById('quiz-score').textContent = quizScore;
-    btns[i].classList.add('correct');
-    fb.textContent = '✅ Correct! ' + q.explanation;
-    fb.className = 'quiz-feedback correct show';
-  } else {
-    btns[i].classList.add('wrong');
-    fb.textContent = '❌ Not quite. ' + q.explanation;
-    fb.className = 'quiz-feedback wrong show';
-  }
-
-  if (quizIdx < QUIZ_QUESTIONS.length - 1) {
-    document.getElementById('quiz-next-btn').style.display = 'inline-flex';
-  } else {
-    document.getElementById('quiz-restart-btn').style.display = 'inline-flex';
-    document.getElementById('quiz-next-btn').style.display = 'none';
-    fb.textContent += ` | Final score: ${quizScore}/${QUIZ_QUESTIONS.length}`;
-  }
-}
-
-function nextQuestion() { quizIdx++; renderQuiz(); }
-function restartQuiz() { quizIdx = 0; quizScore = 0; renderQuiz(); }
-
-// ── PDF DROP ──
-document.addEventListener('dragover', e => e.preventDefault());
-document.addEventListener('drop', e => {
-  e.preventDefault();
-  const file = e.dataTransfer?.files?.[0];
-  if (file?.type === 'application/pdf') {
-    switchTab('pdf');
-    showPdf(URL.createObjectURL(file));
-  }
-});
-
-init();
+// Animate counters on scroll
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { animateCounters(); statsObserver.disconnect(); } });
+}, { threshold: 0.5 });
+statsObserver.observe(document.querySelector('.stats'));
 </script>
 </body>
 </html>
